@@ -1,16 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skynet_internet_cafe/core/service/supabase_service.dart';
 import 'package:skynet_internet_cafe/presentation/screens/home_page.dart';
 import 'package:skynet_internet_cafe/presentation/screens/login_page.dart';
 import 'package:skynet_internet_cafe/presentation/screens/panel_user_page.dart';
+import 'package:skynet_internet_cafe/presentation/screens/customer_management_page.dart';
+import 'package:skynet_internet_cafe/presentation/screens/profile_page.dart';
+import 'package:skynet_internet_cafe/presentation/screens/report_management_page.dart';
+import 'package:skynet_internet_cafe/presentation/screens/seat_management_page.dart';
+import 'package:skynet_internet_cafe/presentation/screens/settings_page.dart';
+import 'package:skynet_internet_cafe/presentation/logic/navbar_cubit.dart';
+import 'package:skynet_internet_cafe/presentation/logic/appbar_cubit.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // ⚠️ PENTING: Initialize Supabase DULU sebelum runApp
-  await SupabaseService.initialize();
-
-  runApp(const MyApp());
+  runApp(
+    MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => NavbarCubit()),
+        BlocProvider(create: (_) => AppbarCubit()),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -19,118 +32,17 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'SkyNet Internet Cafe',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-        useMaterial3: true,
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.blue,
-            foregroundColor: Colors.white,
-            elevation: 2,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-        ),
-        inputDecorationTheme: InputDecorationTheme(
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-          filled: true,
-          fillColor: Colors.grey.shade50,
-        ),
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.blue,
-          foregroundColor: Colors.white,
-          elevation: 2,
-          centerTitle: true,
-        ),
-      ),
-      home: const SplashScreen(),
-    );
-  }
-}
-
-// Splash Screen untuk cek auth state
-class SplashScreen extends StatefulWidget {
-  const SplashScreen({super.key});
-
-  @override
-  State<SplashScreen> createState() => _SplashScreenState();
-}
-
-class _SplashScreenState extends State<SplashScreen> {
-  final _supabaseService = SupabaseService();
-
-  @override
-  void initState() {
-    super.initState();
-    _checkAuthState();
-  }
-
-  Future<void> _checkAuthState() async {
-    await Future.delayed(const Duration(seconds: 1));
-
-    if (!mounted) return;
-
-    if (_supabaseService.isAuthenticated) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const HomePage()),
-      );
-    } else {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => HomePage()),
-      );
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.blue,
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 120,
-              height: 120,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
-                    blurRadius: 20,
-                    offset: const Offset(0, 10),
-                  ),
-                ],
-              ),
-              child: const Icon(Icons.computer, size: 60, color: Colors.blue),
-            ),
-            const SizedBox(height: 24),
-            const Text(
-              'SkyNet Internet Cafe',
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'Cashier System',
-              style: TextStyle(fontSize: 16, color: Colors.white70),
-            ),
-            const SizedBox(height: 48),
-            const CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-            ),
-          ],
-        ),
-      ),
+      routes: {
+        '/home': (_) => const HomePage(),
+        '/schedule': (_) => const CustomerManagementPage(),
+        '/userpanel': (_) => const PanelUserPage(),
+        '/reports': (_) => const ReportManagementPage(),
+        '/seat': (_) => const SeatManagementPage(),
+        '/profile': (_) => const CustomerManagementPage(),
+        '/settings': (_) => const SettingsPage(),
+      },
+      initialRoute: '/home',
     );
   }
 }

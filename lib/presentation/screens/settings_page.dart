@@ -2,13 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:skynet_internet_cafe/presentation/widgets/appbar_widget.dart';
 import 'package:skynet_internet_cafe/presentation/widgets/navbar_widget.dart';
 
-class PanelUserPage extends StatelessWidget {
-  const PanelUserPage({super.key});
+class SettingsPage extends StatelessWidget {
+  const SettingsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      bottomNavigationBar: NavbarWidget(),
       appBar: AppBar(
         backgroundColor: Colors.black,
         elevation: 0,
@@ -32,7 +31,8 @@ class PanelUserPage extends StatelessWidget {
         ),
         actions: const [AppbarWidget(), SizedBox(width: 8)],
       ),
-      body: Column(),
+      bottomNavigationBar: NavbarWidget(),
+      body: Column(children: []),
     );
   }
 }
