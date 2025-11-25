@@ -17,6 +17,8 @@ import 'package:skynet_internet_cafe/presentation/screens/stocks_page.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  await SupabaseService.initialize();
+
   runApp(
     MultiBlocProvider(
       providers: [
@@ -47,7 +49,7 @@ class MyApp extends StatelessWidget {
         '/profile': (_) => const CustomerManagementPage(),
         '/settings': (_) => const SettingsPage(),
       },
-      initialRoute: '/home',
+      initialRoute: '/login',
     );
   }
 }

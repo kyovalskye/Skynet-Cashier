@@ -7,6 +7,11 @@ class LoginCubit extends Cubit<String> {
   LoginCubit() : super('');
 
   Future<void> login(String email, String password) async {
+    if (email.isEmpty || password.isEmpty) {
+      emit('failed');
+      return;
+    }
+
     emit('loading');
     try {
       final res = await supabase.auth.signInWithPassword(
@@ -20,6 +25,9 @@ class LoginCubit extends Cubit<String> {
       } else {
         emit('failed');
       }
+    } on AuthException catch (e) {
+      print('Auth error: ${e.message}');
+      emit('failed');
     } catch (e) {
       print('Login error: $e');
       emit('failed');
@@ -44,7 +52,21 @@ class LoginCubit extends Cubit<String> {
 
     for (final u in users) {
       try {
-        // Signup dengan user_metadata
+        // Cek apakah user sudah ada dengan mencoba sign in
+        try {
+          await supabase.auth.signInWithPassword(
+            email: u['email']!,
+            password: u['password']!,
+          );
+          print('User ${u['email']} sudah ada');
+          // Sign out setelah cek
+          await supabase.auth.signOut();
+          continue;
+        } on AuthException {
+          // User belum ada, lanjut signup
+        }
+
+        // Signup user baru dengan user_metadata
         final res = await supabase.auth.signUp(
           email: u['email']!,
           password: u['password']!,
@@ -53,11 +75,15 @@ class LoginCubit extends Cubit<String> {
 
         if (res.user != null) {
           print(
-            'Signup success for ${u['email']} - Metadata: ${res.user!.userMetadata}',
+            'Signup success untuk ${u['email']} - Metadata: ${res.user!.userMetadata}',
           );
+          // Sign out setelah signup
+          await supabase.auth.signOut();
         }
+      } on AuthException catch (e) {
+        print('Auth error untuk ${u['email']}: ${e.message}');
       } catch (e) {
-        print('Signup error for ${u['email']}: $e');
+        print('Signup error untuk ${u['email']}: $e');
       }
     }
   }

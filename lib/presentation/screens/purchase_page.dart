@@ -72,31 +72,6 @@ class _PurchasePageState extends State<PurchasePage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Cashier Management',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          SizedBox(height: 4),
-                          Text(
-                            'Manage all product',
-                            style: TextStyle(color: Colors.grey, fontSize: 14),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-
                   // Search Bar
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -158,7 +133,7 @@ class _PurchasePageState extends State<PurchasePage> {
                 itemCount: products.length,
                 itemBuilder: (context, index) {
                   final product = products[index];
-                  return _buildProductCard(product);
+                  return _buildProductCard(product, index);
                 },
               ),
             ),
@@ -175,7 +150,7 @@ class _PurchasePageState extends State<PurchasePage> {
     );
   }
 
-  Widget _buildProductCard(Map<String, dynamic> product) {
+  Widget _buildProductCard(Map<String, dynamic> product, int index) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
@@ -240,26 +215,46 @@ class _PurchasePageState extends State<PurchasePage> {
             ),
           ),
 
-          // Add Button
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.cyan,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: IconButton(
-              onPressed: () {
-                // TODO: Add product to cart
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('${product['name']} ditambahkan'),
-                    backgroundColor: Colors.green,
-                    duration: const Duration(seconds: 1),
-                  ),
-                );
-              },
-              icon: const Icon(Icons.add, color: Colors.black),
-              iconSize: 20,
-            ),
+          // Action Buttons
+          Row(
+            children: [
+              // Edit Button
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.orange,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: IconButton(
+                  onPressed: () {
+                    _showEditProductDialog(product, index);
+                  },
+                  icon: const Icon(Icons.edit, color: Colors.black),
+                  iconSize: 20,
+                ),
+              ),
+              const SizedBox(width: 8),
+              // Add Button
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.cyan,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: IconButton(
+                  onPressed: () {
+                    // TODO: Add product to cart
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('${product['name']} ditambahkan'),
+                        backgroundColor: Colors.green,
+                        duration: const Duration(seconds: 1),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.add, color: Colors.black),
+                  iconSize: 20,
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -471,6 +466,215 @@ class _PurchasePageState extends State<PurchasePage> {
           ],
         ),
       ),
+    );
+  }
+
+  void _showEditProductDialog(Map<String, dynamic> product, int index) {
+    final formKey = GlobalKey<FormState>();
+    final nameController = TextEditingController(text: product['name']);
+    final priceController = TextEditingController(
+      text: product['price'].replaceAll('Rp ', '').replaceAll('.', ''),
+    );
+    final stockController = TextEditingController(
+      text: product['stock'].toString(),
+    );
+    String selectedCategoryDialog = 'Drinks'; // TODO: Get from product data
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          backgroundColor: const Color(0xFF1E1E1E),
+          title: const Text(
+            'Edit Produk',
+            style: TextStyle(color: Colors.white),
+          ),
+          content: SingleChildScrollView(
+            child: Form(
+              key: formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Image Placeholder
+                  GestureDetector(
+                    onTap: () {
+                      // TODO: Implement image picker
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Fitur upload foto akan ditambahkan'),
+                          duration: Duration(seconds: 1),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      width: 120,
+                      height: 120,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[800],
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: Colors.grey[700]!,
+                          width: 2,
+                          style: BorderStyle.solid,
+                        ),
+                      ),
+                      child: product['image'] != null
+                          ? ClipRRect(
+                              borderRadius: BorderRadius.circular(12),
+                              child: Image.network(
+                                product['image'],
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return _buildEditImagePlaceholder();
+                                },
+                              ),
+                            )
+                          : _buildEditImagePlaceholder(),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: nameController,
+                    style: const TextStyle(color: Colors.white),
+                    decoration: InputDecoration(
+                      labelText: 'Nama Produk',
+                      labelStyle: const TextStyle(color: Colors.grey),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.grey[700]!),
+                      ),
+                      focusedBorder: const OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.cyan),
+                      ),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Nama produk tidak boleh kosong';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: priceController,
+                    keyboardType: TextInputType.number,
+                    style: const TextStyle(color: Colors.white),
+                    decoration: InputDecoration(
+                      labelText: 'Harga',
+                      labelStyle: const TextStyle(color: Colors.grey),
+                      prefixText: 'Rp ',
+                      prefixStyle: const TextStyle(color: Colors.white),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.grey[700]!),
+                      ),
+                      focusedBorder: const OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.cyan),
+                      ),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Harga tidak boleh kosong';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: stockController,
+                    keyboardType: TextInputType.number,
+                    style: const TextStyle(color: Colors.white),
+                    decoration: InputDecoration(
+                      labelText: 'Stok',
+                      labelStyle: const TextStyle(color: Colors.grey),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.grey[700]!),
+                      ),
+                      focusedBorder: const OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.cyan),
+                      ),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Stok tidak boleh kosong';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  DropdownButtonFormField<String>(
+                    value: selectedCategoryDialog,
+                    dropdownColor: const Color(0xFF1E1E1E),
+                    style: const TextStyle(color: Colors.white),
+                    decoration: InputDecoration(
+                      labelText: 'Kategori',
+                      labelStyle: const TextStyle(color: Colors.grey),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.grey[700]!),
+                      ),
+                      focusedBorder: const OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.cyan),
+                      ),
+                    ),
+                    items: ['Drinks', 'Snacks', 'Accessories'].map((cat) {
+                      return DropdownMenuItem(value: cat, child: Text(cat));
+                    }).toList(),
+                    onChanged: (value) {
+                      setDialogState(() {
+                        selectedCategoryDialog = value!;
+                      });
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Batal'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (formKey.currentState!.validate()) {
+                  // TODO: Update produk
+                  setState(() {
+                    products[index]['name'] = nameController.text;
+                    products[index]['price'] = 'Rp ${priceController.text}';
+                    products[index]['stock'] = int.parse(stockController.text);
+                  });
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Produk berhasil diupdate!'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orange,
+                foregroundColor: Colors.black,
+              ),
+              child: const Text('Update'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEditImagePlaceholder() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(Icons.edit_outlined, color: Colors.grey[600], size: 40),
+        const SizedBox(height: 8),
+        Text(
+          'Tap to change\nproduct photo',
+          textAlign: TextAlign.center,
+          style: TextStyle(color: Colors.grey[600], fontSize: 12),
+        ),
+      ],
     );
   }
 }

@@ -49,7 +49,7 @@ class NavbarWidget extends StatelessWidget {
                 Navigator.pushReplacementNamed(context, '/seat');
                 break;
               case 4:
-                Navigator.pushReplacementNamed(context, '/stocks');
+                Navigator.pushReplacementNamed(context, '/reports');
                 break;
             }
           },
