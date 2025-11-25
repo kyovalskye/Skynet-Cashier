@@ -8,7 +8,6 @@ class AppbarWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Tidak perlu BlocProvider lagi karena sudah di-provide di main.dart
     return const _AppbarContent();
   }
 }
@@ -28,7 +27,6 @@ class _AppbarContent extends StatelessWidget {
               isActive: state.selectedIndex == 0,
               onTap: () {
                 context.read<AppbarCubit>().navigateToIndex(0);
-                // Reset NavBar index supaya tidak ada yang aktif
                 context.read<NavbarCubit>().changeTab(-1);
                 Navigator.pushReplacementNamed(context, '/userpanel');
               },
@@ -50,7 +48,6 @@ class _AppbarContent extends StatelessWidget {
               isActive: state.selectedIndex == 2,
               onTap: () {
                 context.read<AppbarCubit>().navigateToIndex(2);
-                // Reset NavBar index supaya tidak ada yang aktif
                 context.read<NavbarCubit>().changeTab(-1);
                 Navigator.pushReplacementNamed(context, '/settings');
               },

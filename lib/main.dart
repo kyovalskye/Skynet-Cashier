@@ -6,11 +6,13 @@ import 'package:skynet_internet_cafe/presentation/screens/login_page.dart';
 import 'package:skynet_internet_cafe/presentation/screens/panel_user_page.dart';
 import 'package:skynet_internet_cafe/presentation/screens/customer_management_page.dart';
 import 'package:skynet_internet_cafe/presentation/screens/profile_page.dart';
+import 'package:skynet_internet_cafe/presentation/screens/purchase_page.dart';
 import 'package:skynet_internet_cafe/presentation/screens/report_management_page.dart';
 import 'package:skynet_internet_cafe/presentation/screens/seat_management_page.dart';
 import 'package:skynet_internet_cafe/presentation/screens/settings_page.dart';
 import 'package:skynet_internet_cafe/presentation/logic/navbar_cubit.dart';
 import 'package:skynet_internet_cafe/presentation/logic/appbar_cubit.dart';
+import 'package:skynet_internet_cafe/presentation/screens/stocks_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,9 +36,12 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       routes: {
+        '/login': (_) => const LoginPage(),
         '/home': (_) => const HomePage(),
         '/schedule': (_) => const CustomerManagementPage(),
         '/userpanel': (_) => const PanelUserPage(),
+        '/purchase': (_) => const PurchasePage(),
+        '/stocks': (_) => const StocksPage(),
         '/reports': (_) => const ReportManagementPage(),
         '/seat': (_) => const SeatManagementPage(),
         '/profile': (_) => const CustomerManagementPage(),

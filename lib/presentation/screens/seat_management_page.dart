@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skynet_internet_cafe/core/models/seat.dart';
 import 'package:skynet_internet_cafe/presentation/logic/seat_cubit.dart';
+import 'package:skynet_internet_cafe/presentation/widgets/appbar_widget.dart';
 import 'package:skynet_internet_cafe/presentation/widgets/navbar_widget.dart';
 
 class SeatManagementPage extends StatelessWidget {
@@ -12,6 +13,29 @@ class SeatManagementPage extends StatelessWidget {
     return BlocProvider(
       create: (_) => SeatCubit(),
       child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.black,
+          elevation: 0,
+          toolbarHeight: 70,
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Seat Management',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                'Manage your seat',
+                style: TextStyle(color: Colors.grey[500], fontSize: 12),
+              ),
+            ],
+          ),
+          actions: const [AppbarWidget(), SizedBox(width: 8)],
+        ),
         backgroundColor: Colors.black,
         bottomNavigationBar: NavbarWidget(),
         body: SafeArea(
@@ -68,7 +92,7 @@ class SeatManagementPage extends StatelessWidget {
 
   Widget _stat(String name, String value, Color color) {
     return Container(
-      width: 100,
+      width: 150,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skynet_internet_cafe/core/models/session.dart';
 import 'package:skynet_internet_cafe/presentation/logic/customer_management_cubit.dart';
+import 'package:skynet_internet_cafe/presentation/widgets/appbar_widget.dart';
 import 'package:skynet_internet_cafe/presentation/widgets/navbar_widget.dart';
 
 class CustomerManagementPage extends StatelessWidget {
@@ -26,10 +27,11 @@ class CustomerManagementView extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.black,
         elevation: 0,
-        title: const Column(
+        toolbarHeight: 70,
+        title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            const Text(
               'Customer Management',
               style: TextStyle(
                 color: Colors.white,
@@ -39,28 +41,11 @@ class CustomerManagementView extends StatelessWidget {
             ),
             Text(
               'Manage all active sessions',
-              style: TextStyle(
-                color: Colors.grey,
-                fontSize: 12,
-                fontWeight: FontWeight.normal,
-              ),
+              style: TextStyle(color: Colors.grey[500], fontSize: 12),
             ),
           ],
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.person_outline, color: Colors.white),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: const Icon(Icons.description_outlined, color: Colors.white),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: const Icon(Icons.settings_outlined, color: Colors.white),
-            onPressed: () {},
-          ),
-        ],
+        actions: const [AppbarWidget(), SizedBox(width: 8)],
       ),
       body: BlocBuilder<CustomerManagementCubit, CustomerManagementState>(
         builder: (context, state) {
@@ -124,7 +109,7 @@ class CustomerManagementView extends StatelessWidget {
           );
         },
       ),
-      bottomNavigationBar: NavbarWidget()
+      bottomNavigationBar: NavbarWidget(),
     );
   }
 }

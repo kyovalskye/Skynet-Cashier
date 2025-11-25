@@ -69,7 +69,7 @@ class NavbarWidget extends StatelessWidget {
             BottomNavigationBarItem(icon: Icon(Icons.grid_view), label: 'Seat'),
             BottomNavigationBarItem(
               icon: Icon(Icons.layers_outlined),
-              label: 'Stocks',
+              label: 'Reports',
             ),
           ],
         );

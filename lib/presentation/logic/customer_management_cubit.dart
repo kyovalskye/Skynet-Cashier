@@ -33,7 +33,7 @@ class CustomerManagementCubit extends Cubit<CustomerManagementState> {
 
   // Load active sessions (dummy data untuk contoh)
   Future<void> loadActiveSessions() async {
-    emit(state.copyWith(isLoading: true));
+    emit(state.copyWith(isLoading: true)); 
 
     try {
       // Simulate API call

@@ -24,6 +24,5 @@ class AppbarCubit extends Cubit<AppbarState> {
 
   int get currentIndex => state.selectedIndex;
 
-  // Method untuk cek apakah sedang di halaman appbar
   bool get isOnAppbarPage => state.selectedIndex >= 0;
 }
