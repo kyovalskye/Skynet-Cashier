@@ -12,6 +12,7 @@ import 'package:skynet_internet_cafe/presentation/screens/seat_management_page.d
 import 'package:skynet_internet_cafe/presentation/screens/settings_page.dart';
 import 'package:skynet_internet_cafe/presentation/logic/navbar_cubit.dart';
 import 'package:skynet_internet_cafe/presentation/logic/appbar_cubit.dart';
+import 'package:skynet_internet_cafe/presentation/logic/purchase_cubit.dart'; // ← TAMBAHKAN INI
 import 'package:skynet_internet_cafe/presentation/screens/stocks_page.dart';
 
 void main() async {
@@ -24,6 +25,7 @@ void main() async {
       providers: [
         BlocProvider(create: (_) => NavbarCubit()),
         BlocProvider(create: (_) => AppbarCubit()),
+        BlocProvider(create: (_) => PurchaseCubit()), // ← TAMBAHKAN INI
       ],
       child: const MyApp(),
     ),

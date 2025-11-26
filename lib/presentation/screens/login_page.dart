@@ -42,7 +42,6 @@ class _LoginPageState extends State<LoginPage> {
           }
         },
         builder: (context, state) {
-          // ✅ HANYA JALANKAN SIGNUP SEKALI
           if (!_initialized && state == '') {
             _initialized = true;
             Future.microtask(() {
@@ -51,39 +50,43 @@ class _LoginPageState extends State<LoginPage> {
           }
 
           return Scaffold(
-            appBar: AppBar(
-              title: const Text('🌐 Login Skynet Warnet'),
-              centerTitle: true,
-              elevation: 0,
-            ),
+            backgroundColor: Color(0xff0A0A0B),
             body: Center(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
+                padding: const EdgeInsets.only(bottom: 100, left: 20, right: 20),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Logo atau Icon
-                    Container(
-                      width: 100,
-                      height: 100,
-                      decoration: BoxDecoration(
-                        color: Colors.blue.shade100,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        Icons.computer,
-                        size: 50,
-                        color: Colors.blue.shade700,
-                      ),
+                    Image.asset('assets/images/ambanet.png',
+                      width: 500,
+                      height: 300,
+                      fit: BoxFit.cover,
                     ),
-                    const SizedBox(height: 32),
+                    // Logo atau Icon
+                    // Container(
+                    //   width: 100,
+                    //   height: 100,
+                    //   decoration: BoxDecoration(
+                    //     color: Colors.blue.shade100,
+                    //     shape: BoxShape.circle,
+                    //   ),
+                    //   child: Icon(
+                    //     Icons.computer,
+                    //     size: 50,
+                    //     color: Colors.blue.shade700,
+                    //   ),
+                    // ),
+                    SizedBox(height: 60),
 
                     // Email Field
                     TextField(
+                      style: TextStyle(
+                        color: Colors.white
+                      ),
                       controller: emailC,
                       decoration: InputDecoration(
                         labelText: 'Email',
-                        hintText: 'admin@skynet.com',
+                        hintText: 'Masukkan email',
                         prefixIcon: const Icon(Icons.email),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -96,6 +99,7 @@ class _LoginPageState extends State<LoginPage> {
 
                     // Password Field
                     TextField(
+                       style: TextStyle(color: Colors.white),
                       controller: passwordC,
                       decoration: InputDecoration(
                         labelText: 'Password',
@@ -124,13 +128,19 @@ class _LoginPageState extends State<LoginPage> {
                                 );
                               },
                         style: ElevatedButton.styleFrom(
+                          side: BorderSide(
+                            width: 2,
+                            color: Color(0xff006783),
+                          ),
+                          backgroundColor: Color(0xff10333C),
                           shape: RoundedRectangleBorder(
+                            
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
                         child: state == 'loading'
                             ? const SizedBox(
-                                width: 20,
+                                width: 20, 
                                 height: 20,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
@@ -140,6 +150,7 @@ class _LoginPageState extends State<LoginPage> {
                             : const Text(
                                 'Login',
                                 style: TextStyle(
+                                  color: Color(0xff00B3DB),
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -147,57 +158,58 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     const SizedBox(height: 24),
+                    Text('Have you joined previously? Login to continue your manage')
 
                     // Test Credentials
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade100,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.grey.shade300),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.info_outline,
-                                size: 16,
-                                color: Colors.grey.shade600,
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                'Test Credentials:',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.grey.shade700,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            '👤 Admin:\nadmin@skynet.com / adminwarnet',
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: Colors.grey.shade600,
-                              height: 1.4,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            '💼 Kasir:\nkasir1@skynet.com / kasirwarnet',
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: Colors.grey.shade600,
-                              height: 1.4,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                    // Container(
+                    //   padding: const EdgeInsets.all(16),
+                    //   decoration: BoxDecoration(
+                    //     color: Colors.grey.shade100,
+                    //     borderRadius: BorderRadius.circular(12),
+                    //     border: Border.all(color: Colors.grey.shade300),
+                    //   ),
+                    //   child: Column(
+                    //     crossAxisAlignment: CrossAxisAlignment.start,
+                    //     children: [
+                    //       Row(
+                    //         children: [
+                    //           Icon(
+                    //             Icons.info_outline,
+                    //             size: 16,
+                    //             color: Colors.grey.shade600,
+                    //           ),
+                    //           const SizedBox(width: 8),
+                    //           Text(
+                    //             'Test Credentials:',
+                    //             style: TextStyle(
+                    //               fontSize: 12,
+                    //               fontWeight: FontWeight.bold,
+                    //               color: Colors.grey.shade700,
+                    //             ),
+                    //           ),
+                    //         ],
+                    //       ),
+                    //       const SizedBox(height: 8),
+                    //       Text(
+                    //         '👤 Admin:\nadmin@skynet.com / adminwarnet',
+                    //         style: TextStyle(
+                    //           fontSize: 11,
+                    //           color: Colors.grey.shade600,
+                    //           height: 1.4,
+                    //         ),
+                    //       ),
+                    //       const SizedBox(height: 8),
+                    //       Text(
+                    //         '💼 Kasir:\nkasir1@skynet.com / kasirwarnet',
+                    //         style: TextStyle(
+                    //           fontSize: 11,
+                    //           color: Colors.grey.shade600,
+                    //           height: 1.4,
+                    //         ),
+                    //       ),
+                    //     ],
+                    //   ),
+                    // ),
                   ],
                 ),
               ),

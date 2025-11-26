@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:skynet_internet_cafe/presentation/logic/purchase_cubit.dart';
 import 'package:skynet_internet_cafe/presentation/widgets/appbar_widget.dart';
 import 'package:skynet_internet_cafe/presentation/widgets/navbar_widget.dart';
 
@@ -12,145 +14,207 @@ class PurchasePage extends StatefulWidget {
 class _PurchasePageState extends State<PurchasePage> {
   String selectedCategory = 'All';
   final List<String> categories = ['All', 'Drinks', 'Snacks', 'Accessories'];
+  final TextEditingController _searchController = TextEditingController();
 
-  // TODO: Ganti dengan data dari database/API
-  final List<Map<String, dynamic>> products = [
-    {
-      'name': 'Air Mineral',
-      'price': 'Rp 15.000',
-      'stock': 43,
-      'image': null, // TODO: Isi dengan path gambar nanti
-    },
-    {
-      'name': 'Mie Sedaap',
-      'price': 'Rp 15.000',
-      'stock': 43,
-      'image': null, // TODO: Isi dengan path gambar nanti
-    },
-    {
-      'name': 'Kopi',
-      'price': 'Rp 15.000',
-      'stock': 43,
-      'image': null, // TODO: Isi dengan path gambar nanti
-    },
-  ];
+  @override
+  void initState() {
+    super.initState();
+    // Load products saat page pertama kali dibuka
+    context.read<PurchaseCubit>().loadProducts();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        elevation: 0,
-        toolbarHeight: 70,
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Report Management',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            Text(
-              'Manage your report',
-              style: TextStyle(color: Colors.grey[500], fontSize: 12),
-            ),
-          ],
-        ),
-        actions: const [AppbarWidget(), SizedBox(width: 8)],
-      ),
-      bottomNavigationBar: NavbarWidget(),
-      backgroundColor: Colors.black,
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Header
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Search Bar
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF1E1E1E),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const TextField(
-                      style: TextStyle(color: Colors.white),
-                      decoration: InputDecoration(
-                        icon: Icon(Icons.search, color: Colors.grey),
-                        hintText: 'Search products...',
-                        hintStyle: TextStyle(color: Colors.grey),
-                        border: InputBorder.none,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
+    return BlocConsumer<PurchaseCubit, PurchaseState>(
+      listener: (context, state) {
+        // Handle error state
+        if (state is PurchaseError) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(state.message), backgroundColor: Colors.red),
+          );
+        }
+      },
+      builder: (context, state) {
+        String userRole = 'kasir';
+        bool isAdmin = false;
+        List<Map<String, dynamic>> products = [];
+        bool isLoading = state is PurchaseLoading;
 
-                  // Category Chips
-                  SizedBox(
-                    height: 40,
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: categories.length,
-                      itemBuilder: (context, index) {
-                        final category = categories[index];
-                        final isSelected = selectedCategory == category;
-                        return Padding(
-                          padding: const EdgeInsets.only(right: 8),
-                          child: ChoiceChip(
-                            label: Text(category),
-                            selected: isSelected,
-                            onSelected: (selected) {
-                              setState(() {
-                                selectedCategory = category;
-                              });
-                            },
-                            backgroundColor: const Color(0xFF1E1E1E),
-                            selectedColor: Colors.cyan,
-                            labelStyle: TextStyle(
-                              color: isSelected ? Colors.black : Colors.white,
-                              fontWeight: FontWeight.w500,
-                            ),
-                            side: BorderSide.none,
+        if (state is PurchaseLoaded) {
+          userRole = state.userRole;
+          isAdmin = state.isAdmin;
+          products = state.products;
+        }
+
+        return Scaffold(
+          appBar: AppBar(
+            backgroundColor: Colors.black,
+            elevation: 0,
+            toolbarHeight: 70,
+            title: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Purchase Management',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  'Logged in as: $userRole',
+                  style: TextStyle(color: Colors.grey[500], fontSize: 12),
+                ),
+              ],
+            ),
+            actions: const [AppbarWidget(), SizedBox(width: 8)],
+          ),
+          bottomNavigationBar: NavbarWidget(),
+          backgroundColor: Colors.black,
+          body: SafeArea(
+            child: Column(
+              children: [
+                // Header
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Search Bar
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF1E1E1E),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: TextField(
+                          controller: _searchController,
+                          style: const TextStyle(color: Colors.white),
+                          decoration: const InputDecoration(
+                            icon: Icon(Icons.search, color: Colors.grey),
+                            hintText: 'Search products...',
+                            hintStyle: TextStyle(color: Colors.grey),
+                            border: InputBorder.none,
                           ),
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ),
+                          onChanged: (value) {
+                            if (value.isEmpty) {
+                              context.read<PurchaseCubit>().loadProducts(
+                                category: selectedCategory,
+                              );
+                            } else {
+                              context.read<PurchaseCubit>().searchProducts(
+                                value,
+                                category: selectedCategory,
+                              );
+                            }
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 16),
 
-            // Product List
-            Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                itemCount: products.length,
-                itemBuilder: (context, index) {
-                  final product = products[index];
-                  return _buildProductCard(product, index);
-                },
-              ),
+                      // Category Chips
+                      SizedBox(
+                        height: 40,
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: categories.length,
+                          itemBuilder: (context, index) {
+                            final category = categories[index];
+                            final isSelected = selectedCategory == category;
+                            return Padding(
+                              padding: const EdgeInsets.only(right: 8),
+                              child: ChoiceChip(
+                                label: Text(category),
+                                selected: isSelected,
+                                onSelected: (selected) {
+                                  setState(() {
+                                    selectedCategory = category;
+                                    _searchController.clear();
+                                  });
+                                  context.read<PurchaseCubit>().loadProducts(
+                                    category: category,
+                                  );
+                                },
+                                backgroundColor: const Color(0xFF1E1E1E),
+                                selectedColor: Colors.cyan,
+                                labelStyle: TextStyle(
+                                  color: isSelected
+                                      ? Colors.black
+                                      : Colors.white,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                                side: BorderSide.none,
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Product List
+                Expanded(
+                  child: isLoading
+                      ? const Center(
+                          child: CircularProgressIndicator(color: Colors.cyan),
+                        )
+                      : products.isEmpty
+                      ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.inventory_2_outlined,
+                                size: 64,
+                                color: Colors.grey[700],
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                'Belum ada produk',
+                                style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      : ListView.builder(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          itemCount: products.length,
+                          itemBuilder: (context, index) {
+                            final product = products[index];
+                            return _buildProductCard(product, isAdmin);
+                          },
+                        ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          _showAddProductDialog();
-        },
-        backgroundColor: const Color(0xFF2E2E2E),
-        child: const Icon(Icons.add, color: Colors.white),
-      ),
+          ),
+          // FAB hanya muncul untuk admin
+          floatingActionButton: isAdmin
+              ? FloatingActionButton(
+                  onPressed: () {
+                    _showAddProductDialog();
+                  },
+                  backgroundColor: const Color(0xFF2E2E2E),
+                  child: const Icon(Icons.add, color: Colors.white),
+                )
+              : null,
+        );
+      },
     );
   }
 
-  Widget _buildProductCard(Map<String, dynamic> product, int index) {
+  Widget _buildProductCard(Map<String, dynamic> product, bool isAdmin) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
@@ -161,7 +225,7 @@ class _PurchasePageState extends State<PurchasePage> {
       ),
       child: Row(
         children: [
-          // Product Image Placeholder
+          // Product Image
           Container(
             width: 60,
             height: 60,
@@ -169,11 +233,11 @@ class _PurchasePageState extends State<PurchasePage> {
               color: Colors.grey[800],
               borderRadius: BorderRadius.circular(8),
             ),
-            child: product['image'] != null
+            child: product['image_url'] != null
                 ? ClipRRect(
                     borderRadius: BorderRadius.circular(8),
                     child: Image.network(
-                      product['image'],
+                      product['image_url'],
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) {
                         return _buildImagePlaceholder();
@@ -190,7 +254,7 @@ class _PurchasePageState extends State<PurchasePage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  product['name'],
+                  product['name'] ?? 'Unnamed Product',
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 16,
@@ -199,7 +263,7 @@ class _PurchasePageState extends State<PurchasePage> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  product['price'],
+                  'Rp ${(product['price'] ?? 0).toString().replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}',
                   style: const TextStyle(
                     color: Colors.cyan,
                     fontSize: 14,
@@ -208,8 +272,13 @@ class _PurchasePageState extends State<PurchasePage> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Stock: ${product['stock']}',
-                  style: const TextStyle(color: Colors.grey, fontSize: 12),
+                  'Stock: ${product['stock'] ?? 0}',
+                  style: TextStyle(
+                    color: (product['stock'] ?? 0) < 10
+                        ? Colors.orange
+                        : Colors.grey,
+                    fontSize: 12,
+                  ),
                 ),
               ],
             ),
@@ -218,22 +287,24 @@ class _PurchasePageState extends State<PurchasePage> {
           // Action Buttons
           Row(
             children: [
-              // Edit Button
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.orange,
-                  borderRadius: BorderRadius.circular(8),
+              // Edit Button - HANYA UNTUK ADMIN
+              if (isAdmin) ...[
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.orange,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: IconButton(
+                    onPressed: () {
+                      _showEditProductDialog(product);
+                    },
+                    icon: const Icon(Icons.edit, color: Colors.black),
+                    iconSize: 20,
+                  ),
                 ),
-                child: IconButton(
-                  onPressed: () {
-                    _showEditProductDialog(product, index);
-                  },
-                  icon: const Icon(Icons.edit, color: Colors.black),
-                  iconSize: 20,
-                ),
-              ),
-              const SizedBox(width: 8),
-              // Add Button
+                const SizedBox(width: 8),
+              ],
+              // Add to Cart Button - UNTUK SEMUA ROLE
               Container(
                 decoration: BoxDecoration(
                   color: Colors.cyan,
@@ -241,16 +312,20 @@ class _PurchasePageState extends State<PurchasePage> {
                 ),
                 child: IconButton(
                   onPressed: () {
-                    // TODO: Add product to cart
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text('${product['name']} ditambahkan'),
+                        content: Text(
+                          '${product['name']} ditambahkan ke keranjang',
+                        ),
                         backgroundColor: Colors.green,
                         duration: const Duration(seconds: 1),
                       ),
                     );
                   },
-                  icon: const Icon(Icons.add, color: Colors.black),
+                  icon: const Icon(
+                    Icons.add_shopping_cart,
+                    color: Colors.black,
+                  ),
                   iconSize: 20,
                 ),
               ),
@@ -300,51 +375,6 @@ class _PurchasePageState extends State<PurchasePage> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Image Placeholder
-                  GestureDetector(
-                    onTap: () {
-                      // TODO: Implement image picker
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Fitur upload foto akan ditambahkan'),
-                          duration: Duration(seconds: 1),
-                        ),
-                      );
-                    },
-                    child: Container(
-                      width: 120,
-                      height: 120,
-                      decoration: BoxDecoration(
-                        color: Colors.grey[800],
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: Colors.grey[700]!,
-                          width: 2,
-                          style: BorderStyle.solid,
-                        ),
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.add_photo_alternate_outlined,
-                            color: Colors.grey[600],
-                            size: 40,
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Tap to add\nproduct photo',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Colors.grey[600],
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
                   TextFormField(
                     controller: nameController,
                     style: const TextStyle(color: Colors.white),
@@ -447,14 +477,14 @@ class _PurchasePageState extends State<PurchasePage> {
             ElevatedButton(
               onPressed: () {
                 if (formKey.currentState!.validate()) {
-                  // TODO: Simpan produk baru
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Produk berhasil ditambahkan!'),
-                      backgroundColor: Colors.green,
-                    ),
+                  // Gunakan context dari parent, bukan dialogContext
+                  this.context.read<PurchaseCubit>().addProduct(
+                    name: nameController.text,
+                    price: int.parse(priceController.text),
+                    stock: int.parse(stockController.text),
+                    category: selectedCategoryDialog,
                   );
+                  Navigator.pop(context);
                 }
               },
               style: ElevatedButton.styleFrom(
@@ -469,16 +499,16 @@ class _PurchasePageState extends State<PurchasePage> {
     );
   }
 
-  void _showEditProductDialog(Map<String, dynamic> product, int index) {
+  void _showEditProductDialog(Map<String, dynamic> product) {
     final formKey = GlobalKey<FormState>();
     final nameController = TextEditingController(text: product['name']);
     final priceController = TextEditingController(
-      text: product['price'].replaceAll('Rp ', '').replaceAll('.', ''),
+      text: product['price'].toString(),
     );
     final stockController = TextEditingController(
       text: product['stock'].toString(),
     );
-    String selectedCategoryDialog = 'Drinks'; // TODO: Get from product data
+    String selectedCategoryDialog = product['category'] ?? 'Drinks';
 
     showDialog(
       context: context,
@@ -496,44 +526,6 @@ class _PurchasePageState extends State<PurchasePage> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Image Placeholder
-                  GestureDetector(
-                    onTap: () {
-                      // TODO: Implement image picker
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Fitur upload foto akan ditambahkan'),
-                          duration: Duration(seconds: 1),
-                        ),
-                      );
-                    },
-                    child: Container(
-                      width: 120,
-                      height: 120,
-                      decoration: BoxDecoration(
-                        color: Colors.grey[800],
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: Colors.grey[700]!,
-                          width: 2,
-                          style: BorderStyle.solid,
-                        ),
-                      ),
-                      child: product['image'] != null
-                          ? ClipRRect(
-                              borderRadius: BorderRadius.circular(12),
-                              child: Image.network(
-                                product['image'],
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return _buildEditImagePlaceholder();
-                                },
-                              ),
-                            )
-                          : _buildEditImagePlaceholder(),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
                   TextFormField(
                     controller: nameController,
                     style: const TextStyle(color: Colors.white),
@@ -636,19 +628,14 @@ class _PurchasePageState extends State<PurchasePage> {
             ElevatedButton(
               onPressed: () {
                 if (formKey.currentState!.validate()) {
-                  // TODO: Update produk
-                  setState(() {
-                    products[index]['name'] = nameController.text;
-                    products[index]['price'] = 'Rp ${priceController.text}';
-                    products[index]['stock'] = int.parse(stockController.text);
-                  });
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Produk berhasil diupdate!'),
-                      backgroundColor: Colors.green,
-                    ),
+                  this.context.read<PurchaseCubit>().updateProduct(
+                    productId: product['id'],
+                    name: nameController.text,
+                    price: int.parse(priceController.text),
+                    stock: int.parse(stockController.text),
+                    category: selectedCategoryDialog,
                   );
+                  Navigator.pop(context);
                 }
               },
               style: ElevatedButton.styleFrom(
@@ -660,21 +647,6 @@ class _PurchasePageState extends State<PurchasePage> {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildEditImagePlaceholder() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(Icons.edit_outlined, color: Colors.grey[600], size: 40),
-        const SizedBox(height: 8),
-        Text(
-          'Tap to change\nproduct photo',
-          textAlign: TextAlign.center,
-          style: TextStyle(color: Colors.grey[600], fontSize: 12),
-        ),
-      ],
     );
   }
 }

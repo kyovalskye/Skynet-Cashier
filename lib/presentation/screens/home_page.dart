@@ -352,7 +352,10 @@ class HomePageView extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
-          color: Colors.grey[900],
+          border: Border.all(width: 2,
+          color: Color(0xff374151)
+          ),
+          color: Color(0xff131316),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
@@ -384,7 +387,7 @@ class HomePageView extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.grey[900],
+        color: Color(0xff131316),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.cyan.withOpacity(0.3), width: 1),
       ),
