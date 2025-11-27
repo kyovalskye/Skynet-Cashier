@@ -13,7 +13,7 @@ class PurchasePage extends StatefulWidget {
 
 class _PurchasePageState extends State<PurchasePage> {
   String selectedCategory = 'All';
-  final List<String> categories = ['All', 'Drinks', 'Snacks', 'Accessories'];
+  final List<String> categories = ['All', 'Drinks', 'Snacks'];
   final TextEditingController _searchController = TextEditingController();
 
   @override
@@ -288,22 +288,22 @@ class _PurchasePageState extends State<PurchasePage> {
           Row(
             children: [
               // Edit Button - HANYA UNTUK ADMIN
-              if (isAdmin) ...[
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.orange,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: IconButton(
-                    onPressed: () {
-                      _showEditProductDialog(product);
-                    },
-                    icon: const Icon(Icons.edit, color: Colors.black),
-                    iconSize: 20,
-                  ),
-                ),
-                const SizedBox(width: 8),
-              ],
+              // if (isAdmin) ...[
+              //   Container(
+              //     decoration: BoxDecoration(
+              //       color: Colors.orange,
+              //       borderRadius: BorderRadius.circular(8),
+              //     ),
+              //     child: IconButton(
+              //       onPressed: () {
+              //         _showEditProductDialog(product);
+              //       },
+              //       icon: const Icon(Icons.edit, color: Colors.black),
+              //       iconSize: 20,
+              //     ),
+              //   ),
+              //   const SizedBox(width: 8),
+              // ],
               // Add to Cart Button - UNTUK SEMUA ROLE
               Container(
                 decoration: BoxDecoration(
@@ -456,7 +456,7 @@ class _PurchasePageState extends State<PurchasePage> {
                         borderSide: BorderSide(color: Colors.cyan),
                       ),
                     ),
-                    items: ['Drinks', 'Snacks', 'Accessories'].map((cat) {
+                    items: ['Drinks', 'Snacks'].map((cat) {
                       return DropdownMenuItem(value: cat, child: Text(cat));
                     }).toList(),
                     onChanged: (value) {
@@ -607,7 +607,7 @@ class _PurchasePageState extends State<PurchasePage> {
                         borderSide: BorderSide(color: Colors.cyan),
                       ),
                     ),
-                    items: ['Drinks', 'Snacks', 'Accessories'].map((cat) {
+                    items: ['Drinks', 'Snacks'].map((cat) {
                       return DropdownMenuItem(value: cat, child: Text(cat));
                     }).toList(),
                     onChanged: (value) {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skynet_internet_cafe/core/models/session.dart';
-import 'package:skynet_internet_cafe/presentation/logic/customer_management_cubit.dart';
+import 'package:skynet_internet_cafe/presentation/logic/schedule_management_cubit.dart';
 import 'package:skynet_internet_cafe/presentation/widgets/appbar_widget.dart';
 import 'package:skynet_internet_cafe/presentation/widgets/navbar_widget.dart';
 
@@ -32,7 +32,7 @@ class CustomerManagementView extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'Customer Management',
+              'Schedule Management',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 20,

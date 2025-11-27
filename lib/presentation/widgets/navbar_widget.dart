@@ -49,7 +49,7 @@ class NavbarWidget extends StatelessWidget {
                 Navigator.pushReplacementNamed(context, '/seat');
                 break;
               case 4:
-                Navigator.pushReplacementNamed(context, '/reports');
+                Navigator.pushReplacementNamed(context, '/stocks');
                 break;
             }
           },
@@ -69,7 +69,7 @@ class NavbarWidget extends StatelessWidget {
             BottomNavigationBarItem(icon: Icon(Icons.grid_view), label: 'Seat'),
             BottomNavigationBarItem(
               icon: Icon(Icons.layers_outlined),
-              label: 'Reports',
+              label: 'Stocks',
             ),
           ],
         );

@@ -385,7 +385,7 @@ class HomePageView extends StatelessWidget {
     ChartSummary summary,
   ) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Color(0xff131316),
         borderRadius: BorderRadius.circular(12),
@@ -464,12 +464,14 @@ class HomePageView extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 20),
+          Divider(height: 2, color: Color(0xff1B394B),),
+          const SizedBox(height: 5),
           // Summary
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildSummaryItem('Sessions', summary.sessions),
-              _buildSummaryItem('Product', summary.product),
+              _buildSummaryItem('Sessions' , summary.sessions, Colors.blue),
+              _buildSummaryItem('Product', summary.product, Color(0xffff9800)),
             ],
           ),
         ],
@@ -477,15 +479,22 @@ class HomePageView extends StatelessWidget {
     );
   }
 
-  Widget _buildSummaryItem(String label, String value) {
+ Widget _buildSummaryItem(String label, String value, Color labelColor) {
     return Column(
       children: [
-        Text(label, style: TextStyle(color: Colors.grey[500], fontSize: 12)),
+        Text(
+          label,
+          style: TextStyle(
+            color: labelColor,
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         const SizedBox(height: 4),
         Text(
           value,
-          style: const TextStyle(
-            color: Colors.cyan,
+          style:TextStyle(
+            color: Colors.grey[400],
             fontSize: 16,
             fontWeight: FontWeight.bold,
           ),
