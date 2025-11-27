@@ -39,7 +39,7 @@ class HomePageView extends StatelessWidget {
               ),
             ),
             Text(
-              'Rabu, 15 Oktober 2025',
+              'Wednesday, 15 October 2025',
               style: TextStyle(color: Colors.grey[500], fontSize: 12),
             ),
           ],
@@ -72,7 +72,6 @@ class HomePageView extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Active Seats Cards
                     Row(
                       children: [
                         Expanded(
@@ -92,19 +91,17 @@ class HomePageView extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
 
-                    // Income Card
                     _buildIncomeCard(context, state.todayIncome),
 
                     const SizedBox(height: 12),
 
-                    // Action Buttons
                     Row(
                       children: [
                         Expanded(
                           child: _buildActionButton(
                             context,
                             icon: Icons.add,
-                            label: 'Add Customer',
+                            label: 'Add customer',
                             onTap: () => _showAddCustomerDialog(context),
                           ),
                         ),
@@ -130,7 +127,6 @@ class HomePageView extends StatelessWidget {
                     ),
                     const SizedBox(height: 20),
 
-                    // Last 7 days sales
                     const Text(
                       'Last 7 days sales',
                       style: TextStyle(
@@ -147,7 +143,6 @@ class HomePageView extends StatelessWidget {
                     ),
                     const SizedBox(height: 20),
 
-                    // Monthly sales
                     const Text(
                       'Monthly sales',
                       style: TextStyle(
@@ -164,7 +159,6 @@ class HomePageView extends StatelessWidget {
                     ),
                     const SizedBox(height: 20),
 
-                    // Transactions List
                     const Text(
                       'Transactions List',
                       style: TextStyle(
@@ -191,7 +185,6 @@ class HomePageView extends StatelessWidget {
     );
   }
 
-  // Widget untuk VIP Seats (Cyan)
   Widget _buildVIPSeatsCard(
     BuildContext context, {
     required String seatNumber,
@@ -209,7 +202,7 @@ class HomePageView extends StatelessWidget {
             decoration: BoxDecoration(
               color: Color(0xff083740),
               borderRadius: BorderRadius.circular(5),
-            ),  
+            ),
             height: 35,
             width: 35,
             child: Icon(Icons.show_chart, color: Colors.cyan, size: 24),
@@ -227,7 +220,7 @@ class HomePageView extends StatelessWidget {
                 ),
               ),
               Text(
-                'Seats Remaining',
+                'Seats remaining',
                 style: TextStyle(color: Colors.grey[200], fontSize: 11),
               ),
             ],
@@ -237,7 +230,6 @@ class HomePageView extends StatelessWidget {
     );
   }
 
-  // Widget untuk Regular Seats (Green)
   Widget _buildRegularSeatsCard(
     BuildContext context, {
     required String seatNumber,
@@ -273,7 +265,7 @@ class HomePageView extends StatelessWidget {
                 ),
               ),
               Text(
-                'Seats Remaining',
+                'Active seats',
                 style: TextStyle(color: Colors.grey[200], fontSize: 11),
               ),
             ],
@@ -352,9 +344,7 @@ class HomePageView extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
-          border: Border.all(width: 2,
-          color: Color(0xff374151)
-          ),
+          border: Border.all(width: 2, color: Color(0xff374151)),
           color: Color(0xff131316),
           borderRadius: BorderRadius.circular(12),
         ),
@@ -393,7 +383,6 @@ class HomePageView extends StatelessWidget {
       ),
       child: Column(
         children: [
-          // Chart
           SizedBox(
             height: 200,
             child: BarChart(
@@ -464,13 +453,12 @@ class HomePageView extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 20),
-          Divider(height: 2, color: Color(0xff1B394B),),
+          Divider(height: 2, color: Color(0xff1B394B)),
           const SizedBox(height: 5),
-          // Summary
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildSummaryItem('Sessions' , summary.sessions, Colors.blue),
+              _buildSummaryItem('Sessions', summary.sessions, Colors.blue),
               _buildSummaryItem('Product', summary.product, Color(0xffff9800)),
             ],
           ),
@@ -479,7 +467,7 @@ class HomePageView extends StatelessWidget {
     );
   }
 
- Widget _buildSummaryItem(String label, String value, Color labelColor) {
+  Widget _buildSummaryItem(String label, String value, Color labelColor) {
     return Column(
       children: [
         Text(
@@ -493,7 +481,7 @@ class HomePageView extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           value,
-          style:TextStyle(
+          style: TextStyle(
             color: Colors.grey[400],
             fontSize: 16,
             fontWeight: FontWeight.bold,
@@ -647,7 +635,6 @@ class HomePageView extends StatelessWidget {
                     ),
                     onPressed: () {
                       Navigator.of(dialogContext).pop();
-                      // Add logic to handle session start
                     },
                     child: const Text(
                       "Start Session",

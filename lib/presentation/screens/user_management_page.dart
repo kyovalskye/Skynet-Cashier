@@ -62,46 +62,10 @@ class UserManagementView extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header
-                const Text(
-                  'Manage your users',
-                  style: TextStyle(color: Color(0xFF8A8D93), fontSize: 14),
-                ),
                 const SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Manajemen Akun',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    ElevatedButton(
-                      onPressed: () => _showAddUserDialog(context),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF00BCD4),
-                        foregroundColor: Colors.black,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 12,
-                        ),
-                      ),
-                      child: const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.add, size: 18),
-                          SizedBox(width: 8),
-                          Text('Tambah'),
-                        ],
-                      ),
-                    ),
-                  ],
+                  children: const [],
                 ),
                 const SizedBox(height: 24),
 
@@ -152,11 +116,38 @@ class UserManagementView extends StatelessWidget {
                     ],
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 10),
 
-                // User List Header
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () => _showAddUserDialog(context),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF00BCD4),
+                        foregroundColor: Colors.black,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 12,
+                        ),
+                      ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.add, size: 18),
+                          SizedBox(width: 8),
+                          Text('Add'),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+
                 const Text(
-                  'Daftar Pengguna',
+                  'User List',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 16,
@@ -165,7 +156,6 @@ class UserManagementView extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
 
-                // User List
                 Expanded(
                   child: state.isLoading && state.users.isEmpty
                       ? const Center(
@@ -185,7 +175,7 @@ class UserManagementView extends StatelessWidget {
                               ),
                               SizedBox(height: 16),
                               Text(
-                                'Belum ada user terdaftar',
+                                'No users registered yet',
                                 style: TextStyle(
                                   color: Color(0xFF8A8D93),
                                   fontSize: 16,
@@ -214,7 +204,6 @@ class UserManagementView extends StatelessWidget {
                               ),
                               child: Row(
                                 children: [
-                                  // User Avatar
                                   Container(
                                     width: 40,
                                     height: 40,
@@ -240,7 +229,6 @@ class UserManagementView extends StatelessWidget {
                                   ),
                                   const SizedBox(width: 12),
 
-                                  // User Info
                                   Expanded(
                                     child: Column(
                                       crossAxisAlignment:
@@ -286,7 +274,7 @@ class UserManagementView extends StatelessWidget {
                                             ),
                                           ),
                                           child: Text(
-                                            isAdmin ? 'ADMIN' : 'KASIR',
+                                            isAdmin ? 'ADMIN' : 'CASHIER',
                                             style: TextStyle(
                                               color: isAdmin
                                                   ? const Color(0xFF00C853)
@@ -300,7 +288,6 @@ class UserManagementView extends StatelessWidget {
                                     ),
                                   ),
 
-                                  // Delete Button (only for non-admin users)
                                   if (!isAdmin)
                                     IconButton(
                                       onPressed: () =>
@@ -340,7 +327,7 @@ class UserManagementView extends StatelessWidget {
     final nameController = TextEditingController();
     final emailController = TextEditingController();
     final passwordController = TextEditingController();
-    String selectedRole = 'kasir';
+    String selectedRole = 'cashier';
     bool obscurePassword = true;
 
     showDialog(
@@ -358,7 +345,7 @@ class UserManagementView extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Tambah User Baru',
+                  'Add New User',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 20,
@@ -367,15 +354,13 @@ class UserManagementView extends StatelessWidget {
                 ),
                 const SizedBox(height: 20),
 
-                // Name Field
                 _buildDialogField(
                   controller: nameController,
-                  label: 'Nama Lengkap',
+                  label: 'Full Name',
                   icon: Icons.person_outline,
                 ),
                 const SizedBox(height: 16),
 
-                // Email Field
                 _buildDialogField(
                   controller: emailController,
                   label: 'Email',
@@ -384,7 +369,6 @@ class UserManagementView extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
 
-                // Password Field
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -420,7 +404,7 @@ class UserManagementView extends StatelessWidget {
                                   vertical: 14,
                                 ),
                                 border: InputBorder.none,
-                                hintText: 'Masukkan password',
+                                hintText: 'Enter password',
                                 hintStyle: TextStyle(color: Color(0xFF8A8D93)),
                               ),
                             ),
@@ -446,7 +430,6 @@ class UserManagementView extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
 
-                // Role Dropdown
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -479,8 +462,8 @@ class UserManagementView extends StatelessWidget {
                             child: Text('Admin'),
                           ),
                           DropdownMenuItem(
-                            value: 'kasir',
-                            child: Text('Kasir'),
+                            value: 'cashier',
+                            child: Text('Cashier'),
                           ),
                         ],
                         onChanged: (value) {
@@ -494,7 +477,6 @@ class UserManagementView extends StatelessWidget {
                 ),
                 const SizedBox(height: 24),
 
-                // Action Buttons
                 Row(
                   children: [
                     Expanded(
@@ -508,7 +490,7 @@ class UserManagementView extends StatelessWidget {
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
-                        child: const Text('Batal'),
+                        child: const Text('Cancel'),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -520,7 +502,7 @@ class UserManagementView extends StatelessWidget {
                               passwordController.text.isEmpty) {
                             ScaffoldMessenger.of(dialogContext).showSnackBar(
                               const SnackBar(
-                                content: Text('Mohon isi semua field'),
+                                content: Text('Please fill all fields'),
                                 backgroundColor: Color(0xFFD50000),
                               ),
                             );
@@ -545,7 +527,7 @@ class UserManagementView extends StatelessWidget {
                           ),
                         ),
                         child: const Text(
-                          'Simpan',
+                          'Save',
                           style: TextStyle(color: Colors.black),
                         ),
                       ),
@@ -597,7 +579,7 @@ class UserManagementView extends StatelessWidget {
                       vertical: 14,
                     ),
                     border: InputBorder.none,
-                    hintText: 'Masukkan $label',
+                    hintText: 'Enter $label',
                     hintStyle: const TextStyle(color: Color(0xFF8A8D93)),
                   ),
                 ),
@@ -624,7 +606,7 @@ class UserManagementView extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                'Hapus User',
+                'Delete User',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 20,
@@ -633,7 +615,7 @@ class UserManagementView extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                'Apakah Anda yakin ingin menghapus user $userName?',
+                'Are you sure you want to delete $userName?',
                 style: const TextStyle(color: Color(0xFF8A8D93), fontSize: 16),
               ),
               const SizedBox(height: 24),
@@ -650,7 +632,7 @@ class UserManagementView extends StatelessWidget {
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                      child: const Text('Batal'),
+                      child: const Text('Cancel'),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -669,7 +651,7 @@ class UserManagementView extends StatelessWidget {
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                      child: const Text('Hapus'),
+                      child: const Text('Delete'),
                     ),
                   ),
                 ],

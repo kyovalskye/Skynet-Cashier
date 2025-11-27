@@ -15,8 +15,8 @@ class HomeState extends Equatable {
   final String? errorMessage;
 
   const HomeState({
-    this.activeSeatsVIP = 3,
-    this.activeSeatsRegular = 3,
+    this.activeSeatsVIP = 23,
+    this.activeSeatsRegular = 2,
     this.todayIncome = 'Rp 50.000',
     this.last7DaysSales = const [],
     this.monthlySales = const [],

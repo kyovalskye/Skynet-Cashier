@@ -27,10 +27,16 @@ class SettingsView extends StatelessWidget {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () {
+            Navigator.maybePop(context).then((popped) {
+              if (!popped) {
+                Navigator.pushReplacementNamed(context, '/home');
+              }
+            });
+          },
         ),
         title: const Text(
-          'Pengaturan',
+          'Settings',
           style: TextStyle(
             color: Colors.white,
             fontSize: 20,
@@ -60,27 +66,10 @@ class SettingsView extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header
-                const Text(
-                  'Manage your settings',
-                  style: TextStyle(color: Color(0xFF8A8D93), fontSize: 14),
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Pengaturan',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 32),
-
-                // Profile Section
                 _buildMenuCard(
                   icon: Icons.person_outline,
                   title: 'Profile',
-                  subtitle: 'Lihat dan edit profil Anda',
+                  subtitle: 'View and edit your profile',
                   color: const Color(0xFF00BCD4),
                   onTap: () {
                     Navigator.pushNamed(context, '/profile');
@@ -88,12 +77,11 @@ class SettingsView extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
 
-                // Admin Only Sections
                 if (state.userRole == 'admin') ...[
                   _buildMenuCard(
                     icon: Icons.people_outline,
                     title: 'User Management',
-                    subtitle: 'Kelola pengguna sistem',
+                    subtitle: 'Manage all users',
                     color: const Color(0xFF00C853),
                     badge: 'Admin',
                     onTap: () {
@@ -103,8 +91,8 @@ class SettingsView extends StatelessWidget {
                   const SizedBox(height: 16),
                   _buildMenuCard(
                     icon: Icons.settings_outlined,
-                    title: 'Pengaturan Warnet',
-                    subtitle: 'Konfigurasi sistem warnet',
+                    title: 'Internet Café Settings',
+                    subtitle: 'Configure internet cafe system',
                     color: const Color(0xFFFF9800),
                     badge: 'Admin',
                     onTap: () {
@@ -114,75 +102,8 @@ class SettingsView extends StatelessWidget {
                   const SizedBox(height: 16),
                 ],
 
-                // General Settings
-                // _buildMenuCard(
-                //   icon: Icons.notifications_outlined,
-                //   title: 'Notifikasi',
-                //   subtitle: 'Kelola pengaturan notifikasi',
-                //   color: const Color(0xFFE91E63),
-                //   onTap: () {
-                //     // Navigate to notifications settings
-                //   },
-                // ),
-                // const SizedBox(height: 16),
-
-                // _buildMenuCard(
-                //   icon: Icons.security_outlined,
-                //   title: 'Privasi & Keamanan',
-                //   subtitle: 'Pengaturan keamanan akun',
-                //   color: const Color(0xFF9C27B0),
-                //   onTap: () {
-                //     // Navigate to privacy settings
-                //   },
-                // ),
                 const SizedBox(height: 32),
 
-                // App Info
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1A1A1A),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Informasi Aplikasi',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      _buildInfoItem(
-                        icon: Icons.info_outline,
-                        title: 'Versi Aplikasi',
-                        value: '1.0.0',
-                      ),
-                      const SizedBox(height: 12),
-                      _buildInfoItem(
-                        icon: Icons.update_outlined,
-                        title: 'Pembaruan Terakhir',
-                        value: '15 Oktober 2025',
-                      ),
-                      const SizedBox(height: 12),
-                      _buildInfoItem(
-                        icon: Icons.people_outline,
-                        title: 'Role Anda',
-                        value: state.userRole?.toUpperCase() ?? 'USER',
-                        valueColor: state.userRole == 'admin'
-                            ? const Color(0xFF00C853)
-                            : const Color(0xFF00BCD4),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 32),
-
-                // Logout Button
                 Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
@@ -210,7 +131,7 @@ class SettingsView extends StatelessWidget {
                       ),
                     ),
                     subtitle: const Text(
-                      'Keluar dari akun Anda',
+                      'Sign out of your account',
                       style: TextStyle(color: Color(0xFF8A8D93), fontSize: 14),
                     ),
                     onTap: () => _showLogoutDialog(context),
@@ -303,34 +224,6 @@ class SettingsView extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoItem({
-    required IconData icon,
-    required String title,
-    required String value,
-    Color? valueColor,
-  }) {
-    return Row(
-      children: [
-        Icon(icon, color: const Color(0xFF8A8D93), size: 16),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Text(
-            title,
-            style: const TextStyle(color: Color(0xFF8A8D93), fontSize: 14),
-          ),
-        ),
-        Text(
-          value,
-          style: TextStyle(
-            color: valueColor ?? Colors.white,
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ],
-    );
-  }
-
   void _showLogoutDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -347,7 +240,7 @@ class SettingsView extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Konfirmasi Logout',
+                  'Logout Confirmation',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 20,
@@ -356,7 +249,7 @@ class SettingsView extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 const Text(
-                  'Apakah Anda yakin ingin keluar dari akun?',
+                  'Are you sure you want to log out?',
                   style: TextStyle(color: Color(0xFF8A8D93), fontSize: 16),
                 ),
                 const SizedBox(height: 24),
@@ -373,7 +266,7 @@ class SettingsView extends StatelessWidget {
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
-                        child: const Text('Batal'),
+                        child: const Text('Cancel'),
                       ),
                     ),
                     const SizedBox(width: 12),

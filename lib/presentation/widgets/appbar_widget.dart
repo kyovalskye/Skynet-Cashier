@@ -39,18 +39,18 @@ class _AppbarContent extends StatelessWidget {
             // ),
             // const SizedBox(width: 12),
 
-            if (userRole == 'admin') ...[
-              _AppbarItem(
-                icon: Icons.people_outline,
-                isActive: state.selectedIndex == 1,
-                onTap: () {
-                  context.read<AppbarCubit>().navigateToIndex(1);
-                  context.read<NavbarCubit>().changeTab(-1);
-                  Navigator.pushReplacementNamed(context, '/user-management');
-                },
-              ),
-              const SizedBox(width: 12),
-            ],
+            // if (userRole == 'admin') ...[
+            //   _AppbarItem(
+            //     icon: Icons.people_outline,
+            //     isActive: state.selectedIndex == 1,
+            //     onTap: () {
+            //       context.read<AppbarCubit>().navigateToIndex(1);
+            //       context.read<NavbarCubit>().changeTab(-1);
+            //       Navigator.pushReplacementNamed(context, '/user-management');
+            //     },
+            //   ),
+            //   const SizedBox(width: 12),
+            // ],
 
             // Reports
             _AppbarItem(

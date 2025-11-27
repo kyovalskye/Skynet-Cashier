@@ -23,7 +23,7 @@ class AdminSettingsView extends StatelessWidget {
       backgroundColor: Colors.black,
       appBar: AppBar(
         title: const Text(
-          'Pengaturan Warnet',
+          'Internet Cafe Settings',
           style: TextStyle(
             color: Colors.white,
             fontSize: 20,
@@ -66,7 +66,7 @@ class AdminSettingsView extends StatelessWidget {
           if (state.settings == null) {
             return const Center(
               child: Text(
-                'Tidak ada pengaturan',
+                'No settings available',
                 style: TextStyle(color: Color(0xFF8A8D93)),
               ),
             );
@@ -79,25 +79,23 @@ class AdminSettingsView extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header
-                const Text(
-                  'Manage your settings',
-                  style: TextStyle(color: Color(0xFF8A8D93), fontSize: 14),
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Pengaturan Warnet',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 32),
+                // const Text(
+                //   'Manage your settings',
+                //   style: TextStyle(color: Color(0xFF8A8D93), fontSize: 14),
+                // ),
+                // const SizedBox(height: 8),
+                // const Text(
+                //   'Cybercafe Settings',
+                //   style: TextStyle(
+                //     color: Colors.white,
+                //     fontSize: 24,
+                //     fontWeight: FontWeight.w600,
+                //   ),
+                // ),
+                // const SizedBox(height: 32),
 
-                // Nama Warnet
                 _buildSettingCard(
-                  title: 'Nama Warnet',
+                  title: 'Cybercafe Name',
                   child: TextField(
                     controller: TextEditingController(
                       text: settings['nama_warnet'],
@@ -105,7 +103,7 @@ class AdminSettingsView extends StatelessWidget {
                     style: const TextStyle(color: Colors.white),
                     decoration: const InputDecoration(
                       border: InputBorder.none,
-                      hintText: 'Masukkan nama warnet',
+                      hintText: 'Enter cybercafe name',
                       hintStyle: TextStyle(color: Color(0xFF8A8D93)),
                     ),
                     onSubmitted: (value) {
@@ -117,9 +115,8 @@ class AdminSettingsView extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
 
-                // Harga Per Jam
                 _buildSettingCard(
-                  title: 'Harga Per Jam (Default)',
+                  title: 'Price Per Hour (Default)',
                   child: TextField(
                     controller: TextEditingController(
                       text: settings['harga_per_jam_default'].toString(),
@@ -127,7 +124,7 @@ class AdminSettingsView extends StatelessWidget {
                     style: const TextStyle(color: Colors.white),
                     decoration: const InputDecoration(
                       border: InputBorder.none,
-                      hintText: 'Masukkan harga per jam',
+                      hintText: 'Enter price per hour',
                       hintStyle: TextStyle(color: Color(0xFF8A8D93)),
                       suffixText: 'IDR',
                       suffixStyle: TextStyle(color: Color(0xFF8A8D93)),
@@ -145,14 +142,13 @@ class AdminSettingsView extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
 
-                // Pengaturan Sistem
                 _buildSettingCard(
-                  title: 'Pengaturan Sistem',
+                  title: 'System Settings',
                   child: Column(
                     children: [
                       _buildSwitchTile(
                         title: 'Auto Logout',
-                        subtitle: 'Logout otomatis setelah waktu habis',
+                        subtitle: 'Automatically logout when time runs out',
                         value: settings['auto_logout'] ?? true,
                         onChanged: (value) {
                           context.read<AdminSettingsCubit>().updateSettings(
@@ -162,8 +158,9 @@ class AdminSettingsView extends StatelessWidget {
                       ),
                       const Divider(color: Color(0xFF2A2A2A), height: 24),
                       _buildSwitchTile(
-                        title: 'Notifikasi 5 Menit',
-                        subtitle: 'Beri notifikasi 5 menit sebelum waktu habis',
+                        title: '5-Minute Notification',
+                        subtitle:
+                            'Show a notification 5 minutes before time expires',
                         value: settings['notifikasi_5menit'] ?? true,
                         onChanged: (value) {
                           context.read<AdminSettingsCubit>().updateSettings(
@@ -176,7 +173,6 @@ class AdminSettingsView extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
 
-                // Info Terakhir Update
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(20),
@@ -188,7 +184,7 @@ class AdminSettingsView extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        'Informasi',
+                        'Information',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 16,
@@ -212,7 +208,7 @@ class AdminSettingsView extends StatelessWidget {
                           ),
                           const SizedBox(width: 12),
                           Text(
-                            'Terakhir diupdate: ${_formatDate(settings['updated_at'])}',
+                            'Last updated: ${_formatDate(settings['updated_at'])}',
                             style: const TextStyle(
                               fontSize: 14,
                               color: Color(0xFF8A8D93),
