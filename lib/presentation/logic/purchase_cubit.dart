@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -29,6 +30,10 @@ class ImageUploading extends PurchaseState {}
 class PurchaseCubit extends Cubit<PurchaseState> {
   final supabase = Supabase.instance.client;
 
+  // 🔥 Realtime subscription
+  RealtimeChannel? _realtimeChannel;
+  String? _currentCategory;
+
   PurchaseCubit() : super(PurchaseInitial());
 
   String getUserRole() {
@@ -38,7 +43,48 @@ class PurchaseCubit extends Cubit<PurchaseState> {
   }
 
   // ======================
-  // UPLOAD IMAGE - Support Web & Mobile
+  // 🔥 SETUP REALTIME LISTENER
+  // ======================
+  void setupRealtimeListener({String? category}) {
+    _currentCategory = category;
+
+    // Unsubscribe dari channel sebelumnya
+    _realtimeChannel?.unsubscribe();
+
+    // Create channel baru
+    _realtimeChannel = supabase.channel('produk-changes');
+
+    // Listen ke semua perubahan di tabel produk
+    _realtimeChannel!
+        .onPostgresChanges(
+          event: PostgresChangeEvent.all,
+          schema: 'public',
+          table: 'produk',
+          callback: (payload) {
+            print('🔥 Realtime Event: ${payload.eventType}');
+            print('📦 Data: ${payload.newRecord}');
+
+            // Reload products setiap ada perubahan
+            loadProducts(category: _currentCategory, silent: true);
+          },
+        )
+        .subscribe();
+
+    print('✅ Realtime listener started for category: ${category ?? "All"}');
+  }
+
+  // ======================
+  // 🔥 DISPOSE REALTIME
+  // ======================
+  @override
+  Future<void> close() {
+    _realtimeChannel?.unsubscribe();
+    print('❌ Realtime listener stopped');
+    return super.close();
+  }
+
+  // ======================
+  // UPLOAD IMAGE
   // ======================
   Future<String?> uploadImageBytes(
     Uint8List imageBytes,
@@ -51,19 +97,15 @@ class PurchaseCubit extends Cubit<PurchaseState> {
         return null;
       }
 
-      // Emit loading state
       emit(ImageUploading());
 
-      // Generate unique filename
       final timestamp = DateTime.now().millisecondsSinceEpoch;
       final uniqueFileName = 'product_${timestamp}_$fileName';
 
-      // Upload to Supabase Storage menggunakan bytes
       await supabase.storage
           .from('product-images')
           .uploadBinary(uniqueFileName, imageBytes);
 
-      // Get public URL
       final String publicUrl = supabase.storage
           .from('product-images')
           .getPublicUrl(uniqueFileName);
@@ -82,23 +124,24 @@ class PurchaseCubit extends Cubit<PurchaseState> {
     try {
       if (imageUrl.isEmpty) return;
 
-      // Extract filename from URL
       final uri = Uri.parse(imageUrl);
       final fileName = uri.pathSegments.last;
 
       await supabase.storage.from('product-images').remove([fileName]);
     } catch (e) {
-      // Silent fail - tidak perlu emit error
       print('Error deleting image: $e');
     }
   }
 
   // ======================
-  // LOAD PRODUCTS
+  // 🔥 LOAD PRODUCTS (with silent mode for realtime)
   // ======================
-  Future<void> loadProducts({String? category}) async {
+  Future<void> loadProducts({String? category, bool silent = false}) async {
     try {
-      emit(PurchaseLoading());
+      if (!silent) {
+        emit(PurchaseLoading());
+      }
+
       final userRole = getUserRole();
 
       var query = supabase.from('produk').select("""
@@ -130,6 +173,11 @@ class PurchaseCubit extends Cubit<PurchaseState> {
       }).toList();
 
       emit(PurchaseLoaded(products: transformedData, userRole: userRole));
+
+      // 🔥 Setup realtime listener setelah load pertama kali
+      if (!silent) {
+        setupRealtimeListener(category: category);
+      }
     } catch (e) {
       emit(PurchaseError("Gagal memuat produk: $e"));
     }
@@ -161,7 +209,8 @@ class PurchaseCubit extends Cubit<PurchaseState> {
         'created_at': DateTime.now().toIso8601String(),
       });
 
-      await loadProducts();
+      // ✅ Realtime akan auto-reload, tapi bisa manual juga
+      // await loadProducts(category: _currentCategory, silent: true);
     } catch (e) {
       emit(PurchaseError('Gagal menambah produk: $e'));
     }
@@ -195,7 +244,6 @@ class PurchaseCubit extends Cubit<PurchaseState> {
 
       if (imageUrl != null) {
         updateData['gambar_url'] = imageUrl;
-        // Delete old image if exists and different from new
         if (oldImageUrl != null && oldImageUrl != imageUrl) {
           await deleteImageFromStorage(oldImageUrl);
         }
@@ -206,7 +254,7 @@ class PurchaseCubit extends Cubit<PurchaseState> {
           .update(updateData)
           .eq('produkid', productId);
 
-      await loadProducts();
+      // ✅ Realtime akan auto-reload
     } catch (e) {
       emit(PurchaseError('Gagal mengupdate produk: $e'));
     }
@@ -223,14 +271,13 @@ class PurchaseCubit extends Cubit<PurchaseState> {
         return;
       }
 
-      // Delete image first
       if (imageUrl != null) {
         await deleteImageFromStorage(imageUrl);
       }
 
       await supabase.from('produk').delete().eq('produkid', productId);
 
-      await loadProducts();
+      // ✅ Realtime akan auto-reload
     } catch (e) {
       emit(PurchaseError('Gagal menghapus produk: $e'));
     }
@@ -241,6 +288,9 @@ class PurchaseCubit extends Cubit<PurchaseState> {
   // ======================
   Future<void> searchProducts(String query, {String? category}) async {
     try {
+      // 🔥 Stop realtime saat search
+      _realtimeChannel?.unsubscribe();
+
       emit(PurchaseLoading());
       final role = getUserRole();
 
