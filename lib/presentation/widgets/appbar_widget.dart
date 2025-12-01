@@ -27,17 +27,24 @@ class _AppbarContent extends StatelessWidget {
         return Row( 
           mainAxisSize: MainAxisSize.min,
           children: [
+
+
+
+
+
+
+            
             // User Panel
-            // _AppbarItem(
-            //   icon: Icons.person_outline,
-            //   isActive: state.selectedIndex == 0,
-            //   onTap: () {
-            //     context.read<AppbarCubit>().navigateToIndex(0);
-            //     context.read<NavbarCubit>().changeTab(-1);
-            //     Navigator.pushReplacementNamed(context, '/userpanel');
-            //   },
-            // ),
-            // const SizedBox(width: 12),
+            _AppbarItem(
+              icon: Icons.person_outline,
+              isActive: state.selectedIndex == 0,
+              onTap: () {
+                context.read<AppbarCubit>().navigateToIndex(0);
+                context.read<NavbarCubit>().changeTab(-1);
+                Navigator.pushReplacementNamed(context, '/customer');
+              },
+            ),
+            const SizedBox(width: 12),
 
             // if (userRole == 'admin') ...[
             //   _AppbarItem(

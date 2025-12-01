@@ -1,24 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skynet_internet_cafe/core/models/session.dart';
+import 'package:skynet_internet_cafe/presentation/logic/customer_management_cubit..dart';
 import 'package:skynet_internet_cafe/presentation/logic/schedule_management_cubit.dart';
 import 'package:skynet_internet_cafe/presentation/widgets/appbar_widget.dart';
 import 'package:skynet_internet_cafe/presentation/widgets/navbar_widget.dart';
 
-class CustomerManagementPage extends StatelessWidget {
-  const CustomerManagementPage({super.key});
+class ScheduleManagementPage extends StatelessWidget {
+  const ScheduleManagementPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => CustomerManagementCubit()..loadActiveSessions(),
-      child: const CustomerManagementView(),
+      create: (context) => ScheduleManagementCubit()..loadActiveSessions(),
+      child: const ScheduleManagementView(),
     );
   }
 }
 
-class CustomerManagementView extends StatelessWidget {
-  const CustomerManagementView({super.key});
+class ScheduleManagementView extends StatelessWidget {
+  const ScheduleManagementView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +48,7 @@ class CustomerManagementView extends StatelessWidget {
         ),
         actions: const [AppbarWidget(), SizedBox(width: 8)],
       ),
-      body: BlocBuilder<CustomerManagementCubit, CustomerManagementState>(
+      body: BlocBuilder<ScheduleManagementCubit, ScheduleManagementState>(
         builder: (context, state) {
           if (state.isLoading) {
             return const Center(
@@ -57,7 +58,7 @@ class CustomerManagementView extends StatelessWidget {
 
           return Column(
             children: [
-              // Active Sessions Header
+              // header
               Container(
                 margin: const EdgeInsets.all(16),
                 padding: const EdgeInsets.all(20),
@@ -94,14 +95,13 @@ class CustomerManagementView extends StatelessWidget {
                 ),
               ),
 
-              // Sessions List
               Expanded(
                 child: ListView.builder(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   itemCount: state.activeSessions.length,
-                  itemBuilder: (context, index) {
-                    final session = state.activeSessions[index];
-                    return SessionCard(session: session);
+                  itemBuilder: (context, i) {
+                    final s = state.activeSessions[i];
+                    return SessionCard(session: s);
                   },
                 ),
               ),
@@ -113,6 +113,7 @@ class CustomerManagementView extends StatelessWidget {
     );
   }
 }
+
 
 class SessionCard extends StatelessWidget {
   final SessionModel session;
@@ -295,7 +296,7 @@ class SessionCard extends StatelessWidget {
               Expanded(
                 child: ElevatedButton.icon(
                   onPressed: () {
-                    context.read<CustomerManagementCubit>().extendSession(
+                    context.read<ScheduleManagementCubit>().extendSession(
                       session.id,
                     );
                   },
@@ -352,7 +353,7 @@ class SessionCard extends StatelessWidget {
           ),
           ElevatedButton(
             onPressed: () {
-              context.read<CustomerManagementCubit>().endSession(session.id);
+              context.read<ScheduleManagementCubit>().endSession(session.id);
               Navigator.pop(dialogContext);
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),

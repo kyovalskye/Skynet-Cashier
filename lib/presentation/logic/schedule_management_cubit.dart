@@ -1,24 +1,25 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skynet_internet_cafe/core/models/session.dart';
+import 'package:skynet_internet_cafe/core/service/supabase_service.dart';
 
-// State
-class CustomerManagementState {
+// STATE
+class ScheduleManagementState {
   final List<SessionModel> activeSessions;
   final bool isLoading;
   final String? errorMessage;
 
-  CustomerManagementState({
+  ScheduleManagementState({
     required this.activeSessions,
     this.isLoading = false,
     this.errorMessage,
   });
 
-  CustomerManagementState copyWith({
+  ScheduleManagementState copyWith({
     List<SessionModel>? activeSessions,
     bool? isLoading,
     String? errorMessage,
   }) {
-    return CustomerManagementState(
+    return ScheduleManagementState(
       activeSessions: activeSessions ?? this.activeSessions,
       isLoading: isLoading ?? this.isLoading,
       errorMessage: errorMessage ?? this.errorMessage,
@@ -26,17 +27,17 @@ class CustomerManagementState {
   }
 }
 
-// Cubit
-class CustomerManagementCubit extends Cubit<CustomerManagementState> {
-  CustomerManagementCubit()
-    : super(CustomerManagementState(activeSessions: [], isLoading: false));
+// CUBIT
+class ScheduleManagementCubit extends Cubit<ScheduleManagementState> {
+  final SupabaseService? supabaseService;
 
-  // Load active sessions (dummy data untuk contoh)
+  ScheduleManagementCubit({this.supabaseService})
+    : super(ScheduleManagementState(activeSessions: [], isLoading: false));
+
   Future<void> loadActiveSessions() async {
-    emit(state.copyWith(isLoading: true)); 
+    emit(state.copyWith(isLoading: true));
 
     try {
-      // Simulate API call
       await Future.delayed(const Duration(seconds: 1));
 
       final sessions = [
@@ -55,7 +56,7 @@ class CustomerManagementCubit extends Cubit<CustomerManagementState> {
         ),
         SessionModel(
           id: '2',
-          seatNumber: 'Seat 13',
+          seatNumber: 'Seat 14',
           customerName: 'Mas Hambali Ngawi',
           duration: '3 Hours',
           cost: 'Rp 15.000',
@@ -74,25 +75,22 @@ class CustomerManagementCubit extends Cubit<CustomerManagementState> {
     }
   }
 
-  // Extend session time
   Future<void> extendSession(String sessionId) async {
     try {
-      // Simulate API call
       await Future.delayed(const Duration(milliseconds: 500));
 
       final updatedSessions = state.activeSessions.map((session) {
         if (session.id == sessionId) {
-          // Add 1 hour to the session
           final newEndTime = _addHours(session.endTime, 1);
-          final newRemainingTime = _calculateRemainingTime(
+          final newRemaining = _calculateRemainingTime(
             session.startDateTime,
             4,
-          ); // 3 + 1 hour
+          );
 
           return session.copyWith(
             duration: '4 Hours',
             endTime: newEndTime,
-            remainingTime: newRemainingTime,
+            remainingTime: newRemaining,
           );
         }
         return session;
@@ -104,14 +102,12 @@ class CustomerManagementCubit extends Cubit<CustomerManagementState> {
     }
   }
 
-  // End session
   Future<void> endSession(String sessionId) async {
     try {
-      // Simulate API call
       await Future.delayed(const Duration(milliseconds: 500));
 
       final updatedSessions = state.activeSessions
-          .where((session) => session.id != sessionId)
+          .where((s) => s.id != sessionId)
           .toList();
 
       emit(state.copyWith(activeSessions: updatedSessions));
@@ -120,38 +116,33 @@ class CustomerManagementCubit extends Cubit<CustomerManagementState> {
     }
   }
 
-  // Update remaining time (call this periodically)
   void updateRemainingTimes() {
-    final updatedSessions = state.activeSessions.map((session) {
-      final newRemainingTime = _calculateRemainingTime(
+    final updated = state.activeSessions.map((session) {
+      final newRemaining = _calculateRemainingTime(
         session.startDateTime,
-        int.parse(session.duration.split(' ')[0]),
+        int.parse(session.duration.split(" ")[0]),
       );
-      return session.copyWith(remainingTime: newRemainingTime);
+
+      return session.copyWith(remainingTime: newRemaining);
     }).toList();
 
-    emit(state.copyWith(activeSessions: updatedSessions));
+    emit(state.copyWith(activeSessions: updated));
   }
 
-  // Helper methods
   String _addHours(String time, int hours) {
     final parts = time.split(':');
     final hour = int.parse(parts[0]) + hours;
-    final minute = parts[1];
-    return '${hour.toString().padLeft(2, '0')}:$minute';
+    return '${hour.toString().padLeft(2, '0')}:${parts[1]}';
   }
 
-  String _calculateRemainingTime(DateTime startTime, int durationHours) {
-    final endTime = startTime.add(Duration(hours: durationHours));
-    final remaining = endTime.difference(DateTime.now());
+  String _calculateRemainingTime(DateTime start, int durationHours) {
+    final end = start.add(Duration(hours: durationHours));
+    final diff = end.difference(DateTime.now());
 
-    if (remaining.isNegative) {
-      return '0h 0m';
-    }
+    if (diff.isNegative) return "0h 0m";
 
-    final hours = remaining.inHours;
-    final minutes = remaining.inMinutes.remainder(60);
-
-    return '${hours}h ${minutes}m';
+    final h = diff.inHours;
+    final m = diff.inMinutes.remainder(60);
+    return '${h}h ${m}m';
   }
 }

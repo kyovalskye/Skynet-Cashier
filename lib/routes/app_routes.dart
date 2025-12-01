@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:skynet_internet_cafe/presentation/screens/customer_management_page.dart';
 import 'package:skynet_internet_cafe/presentation/screens/home_page.dart';
 import 'package:skynet_internet_cafe/presentation/screens/login_page.dart';
 import 'package:skynet_internet_cafe/presentation/screens/panel_user_page.dart';
-import 'package:skynet_internet_cafe/presentation/screens/schedule_management_page.dart';
 import 'package:skynet_internet_cafe/presentation/screens/profile_page.dart';
 import 'package:skynet_internet_cafe/presentation/screens/purchase_page.dart';
 import 'package:skynet_internet_cafe/presentation/screens/report_management_page.dart';
@@ -18,6 +18,7 @@ class AppRoutes {
     '/reports': (_) => const ReportManagementPage(),
     '/profile': (_) => const ProfilePage(),
     '/settings': (_) => const SettingsPage(),
+    '/customer': (_) => const CustomerManagementPage(),
     '/purchase': (_) => const PurchasePage(),
     '/seat': (_) => const SeatManagementPage(),
     '/user-management': (_) => const UserManagementPage(),

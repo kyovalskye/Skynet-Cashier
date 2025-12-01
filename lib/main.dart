@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skynet_internet_cafe/core/service/supabase_service.dart';
 import 'package:skynet_internet_cafe/presentation/screens/admin_settings_page.dart';
+import 'package:skynet_internet_cafe/presentation/screens/customer_management_page.dart';
 import 'package:skynet_internet_cafe/presentation/screens/home_page.dart';
 import 'package:skynet_internet_cafe/presentation/screens/login_page.dart';
 import 'package:skynet_internet_cafe/presentation/screens/panel_user_page.dart';
@@ -44,7 +45,8 @@ class MyApp extends StatelessWidget {
       routes: {
         '/login': (_) => const LoginPage(),
         '/home': (_) => const HomePage(),
-        '/schedule': (_) => const CustomerManagementPage(),
+        '/customer': (_) => const CustomerManagementPage(),
+        '/schedule': (_) => const ScheduleManagementPage(),
         '/userpanel': (_) => const PanelUserPage(),
         '/purchase': (_) => const PurchasePage(),
         '/stocks': (_) => const StockManagementPage(),
