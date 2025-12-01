@@ -1,3 +1,5 @@
+// File: lib/presentation/logic/stock_management_cubit.dart
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skynet_internet_cafe/core/service/supabase_service.dart';
 
@@ -21,10 +23,10 @@ class Product {
 
   factory Product.fromJson(Map<String, dynamic> json) {
     return Product(
-      id: json['produktid'].toString(),
+      id: json['produkid'].toString(),
       name: json['namaproduk'] ?? '',
       category: json['kategori'] ?? 'Uncategorized',
-      stock: json['stok'] ?? 0,
+      stock: json['jumlah'] ?? 0,
       price: json['harga'] ?? 0,
       imageUrl: json['gambar_url'],
     );
@@ -75,13 +77,13 @@ class StockManagementCubit extends Cubit<StockManagementState> {
 
   final _supabase = SupabaseService();
   List<Product> _allProducts = [];
-  String _userRole = 'kasir'; // default
+  String _userRole = 'kasir';
 
   Future<void> loadProducts() async {
     emit(StockManagementLoading());
 
     try {
-      // Get user role from profiles table
+      // Get user role
       final user = _supabase.currentUser;
       if (user != null) {
         try {
@@ -98,17 +100,43 @@ class StockManagementCubit extends Cubit<StockManagementState> {
         }
       }
 
-      // Fetch products from Supabase (table: produk)
+      // Fetch products dengan JOIN ke tabel stok
       final response = await _supabase
           .from('produk')
-          .select()
+          .select(
+            'produkid, namaproduk, kategori, harga, gambar_url, stok(jumlah)',
+          )
           .order('namaproduk', ascending: true);
 
-      _allProducts = (response as List)
-          .map((json) => Product.fromJson(json))
-          .toList();
+      // Parse response - handle both single object and list
+      List<dynamic> dataList;
+      if (response is List) {
+        dataList = response;
+      } else if (response is Map) {
+        dataList = [response];
+      } else {
+        dataList = [];
+      }
 
-      print('✅ Loaded ${_allProducts.length} products');
+      _allProducts = dataList.map((json) {
+        // Flatten data dari JOIN
+        final productData = {
+          'produkid': json['produkid'],
+          'namaproduk': json['namaproduk'],
+          'kategori': json['kategori'],
+          'harga': json['harga'],
+          'gambar_url': json['gambar_url'],
+          'jumlah':
+              json['stok'] != null &&
+                  json['stok'] is List &&
+                  (json['stok'] as List).isNotEmpty
+              ? json['stok'][0]['jumlah']
+              : 0,
+        };
+        return Product.fromJson(productData);
+      }).toList();
+
+      print('✅ Loaded ${_allProducts.length} products with stock data');
       emit(StockManagementLoaded(_allProducts, _userRole));
     } catch (e) {
       print('❌ Error loading products: $e');
@@ -117,18 +145,39 @@ class StockManagementCubit extends Cubit<StockManagementState> {
   }
 
   Future<void> updateStock(String productId, int newStock) async {
-    // Check if user is admin
     if (_userRole != 'admin') {
       emit(StockManagementError('Hanya admin yang dapat mengubah stok'));
       return;
     }
 
     try {
-      // Update stock in Supabase (table: produk, column: stok)
-      await _supabase
-          .from('produk')
-          .update({'stok': newStock})
-          .eq('produktid', productId);
+      // Cek apakah produk sudah ada di tabel stok
+      final existingStock = await _supabase
+          .from('stok')
+          .select()
+          .eq('produktid', productId)
+          .maybeSingle();
+
+      if (existingStock != null) {
+        // Update jika sudah ada
+        await _supabase
+            .from('stok')
+            .update({
+              'jumlah': newStock,
+              'updated_at': DateTime.now().toIso8601String(),
+            })
+            .eq('produktid', productId);
+        print('✅ Stock updated for product $productId');
+      } else {
+        // Insert jika belum ada
+        await _supabase.from('stok').insert({
+          'produktid': productId,
+          'jumlah': newStock,
+          'created_at': DateTime.now().toIso8601String(),
+          'updated_at': DateTime.now().toIso8601String(),
+        });
+        print('✅ Stock created for product $productId');
+      }
 
       // Update local data
       final index = _allProducts.indexWhere((p) => p.id == productId);
@@ -136,8 +185,6 @@ class StockManagementCubit extends Cubit<StockManagementState> {
         _allProducts[index] = _allProducts[index].copyWith(stock: newStock);
         emit(StockManagementLoaded(List.from(_allProducts), _userRole));
       }
-
-      print('✅ Stock updated successfully for product $productId');
     } catch (e) {
       print('❌ Error updating stock: $e');
       emit(StockManagementError('Gagal memperbarui stok: ${e.toString()}'));

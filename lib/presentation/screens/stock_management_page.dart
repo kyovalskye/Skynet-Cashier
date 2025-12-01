@@ -1,3 +1,5 @@
+// File: lib/presentation/pages/stock_management_page.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skynet_internet_cafe/presentation/logic/stock_management_cubit.dart';
@@ -24,7 +26,7 @@ class _StockManagementView extends StatelessWidget {
     return Scaffold(
       bottomNavigationBar: NavbarWidget(),
       backgroundColor: Colors.black,
-       appBar: AppBar(
+      appBar: AppBar(
         backgroundColor: Colors.black,
         elevation: 0,
         toolbarHeight: 70,
@@ -324,14 +326,51 @@ class _ProductCard extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             child: Row(
               children: [
+                // Product Image Container
                 Container(
-                  width: 50,
-                  height: 50,
+                  width: 60,
+                  height: 60,
                   decoration: BoxDecoration(
                     color: stockColor.withOpacity(0.15),
                     borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: stockColor.withOpacity(0.3),
+                      width: 1,
+                    ),
                   ),
-                  child: Icon(Icons.shopping_bag, color: stockColor, size: 24),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child:
+                        product.imageUrl != null && product.imageUrl!.isNotEmpty
+                        ? Image.network(
+                            product.imageUrl!,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Icon(
+                                Icons.shopping_bag,
+                                color: stockColor,
+                                size: 28,
+                              );
+                            },
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              return Center(
+                                child: CircularProgressIndicator(
+                                  value:
+                                      loadingProgress.expectedTotalBytes != null
+                                      ? loadingProgress.cumulativeBytesLoaded /
+                                            loadingProgress.expectedTotalBytes!
+                                      : null,
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    stockColor,
+                                  ),
+                                ),
+                              );
+                            },
+                          )
+                        : Icon(Icons.shopping_bag, color: stockColor, size: 28),
+                  ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(

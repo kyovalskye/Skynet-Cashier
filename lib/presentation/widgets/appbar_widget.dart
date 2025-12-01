@@ -27,14 +27,8 @@ class _AppbarContent extends StatelessWidget {
         return Row( 
           mainAxisSize: MainAxisSize.min,
           children: [
-
-
-
-
-
-
-            
             // User Panel
+             if (userRole == 'admin') ...[
             _AppbarItem(
               icon: Icons.person_outline,
               isActive: state.selectedIndex == 0,
@@ -42,8 +36,10 @@ class _AppbarContent extends StatelessWidget {
                 context.read<AppbarCubit>().navigateToIndex(0);
                 context.read<NavbarCubit>().changeTab(-1);
                 Navigator.pushReplacementNamed(context, '/customer');
+             
               },
             ),
+             ],
             const SizedBox(width: 12),
 
             // if (userRole == 'admin') ...[

@@ -1,3 +1,4 @@
+// File: lib/presentation/logic/purchase_cubit.dart
 import 'dart:async';
 import 'dart:typed_data';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -26,6 +27,12 @@ class PurchaseError extends PurchaseState {
 
 class ImageUploading extends PurchaseState {}
 
+// ✅ State baru untuk notifikasi sukses delete
+class PurchaseDeleted extends PurchaseState {
+  final String productName;
+  PurchaseDeleted(this.productName);
+}
+
 // CUBIT
 class PurchaseCubit extends Cubit<PurchaseState> {
   final supabase = Supabase.instance.client;
@@ -51,20 +58,26 @@ class PurchaseCubit extends Cubit<PurchaseState> {
     // Unsubscribe dari channel sebelumnya
     _realtimeChannel?.unsubscribe();
 
-    // Create channel baru
-    _realtimeChannel = supabase.channel('produk-changes');
+    // Create channel baru untuk produk dan stok
+    _realtimeChannel = supabase.channel('produk-stok-changes');
 
-    // Listen ke semua perubahan di tabel produk
+    // Listen ke perubahan di tabel produk
     _realtimeChannel!
         .onPostgresChanges(
           event: PostgresChangeEvent.all,
           schema: 'public',
           table: 'produk',
           callback: (payload) {
-            print('🔥 Realtime Event: ${payload.eventType}');
-            print('📦 Data: ${payload.newRecord}');
-
-            // Reload products setiap ada perubahan
+            print('🔥 Realtime Event (produk): ${payload.eventType}');
+            loadProducts(category: _currentCategory, silent: true);
+          },
+        )
+        .onPostgresChanges(
+          event: PostgresChangeEvent.all,
+          schema: 'public',
+          table: 'stok',
+          callback: (payload) {
+            print('🔥 Realtime Event (stok): ${payload.eventType}');
             loadProducts(category: _currentCategory, silent: true);
           },
         )
@@ -91,12 +104,6 @@ class PurchaseCubit extends Cubit<PurchaseState> {
     String fileName,
   ) async {
     try {
-      final role = getUserRole();
-      if (role != 'admin') {
-        emit(PurchaseError('Hanya admin yang bisa upload gambar'));
-        return null;
-      }
-
       emit(ImageUploading());
 
       final timestamp = DateTime.now().millisecondsSinceEpoch;
@@ -134,7 +141,7 @@ class PurchaseCubit extends Cubit<PurchaseState> {
   }
 
   // ======================
-  // 🔥 LOAD PRODUCTS (with silent mode for realtime)
+  // 🔥 LOAD PRODUCTS (with JOIN to stok table)
   // ======================
   Future<void> loadProducts({String? category, bool silent = false}) async {
     try {
@@ -144,28 +151,47 @@ class PurchaseCubit extends Cubit<PurchaseState> {
 
       final userRole = getUserRole();
 
-      var query = supabase.from('produk').select("""
+      // Query dengan JOIN ke tabel stok
+      var query = supabase.from('produk').select('''
         produkid,
         namaproduk,
         harga,
-        stok,
         kategori,
         gambar_url,
-        created_at
-      """);
+        created_at,
+        stok(jumlah)
+      ''');
 
       if (category != null && category != 'All') {
         query = query.eq('kategori', category);
       }
 
-      final data = await query.order('namaproduk');
+      final response = await query.order('namaproduk');
 
-      final transformedData = (data as List).map((item) {
+      // Parse response
+      List<dynamic> dataList;
+      if (response is List) {
+        dataList = response;
+      } else if (response is Map) {
+        dataList = [response];
+      } else {
+        dataList = [];
+      }
+
+      final transformedData = dataList.map((item) {
+        // Ambil jumlah stok dari JOIN
+        int stock = 0;
+        if (item['stok'] != null &&
+            item['stok'] is List &&
+            (item['stok'] as List).isNotEmpty) {
+          stock = item['stok'][0]['jumlah'] ?? 0;
+        }
+
         return {
           'id': item['produkid'],
           'name': item['namaproduk'],
           'price': item['harga'],
-          'stock': item['stok'],
+          'stock': stock,
           'category': item['kategori'],
           'image_url': item['gambar_url'],
           'created_at': item['created_at'],
@@ -179,71 +205,60 @@ class PurchaseCubit extends Cubit<PurchaseState> {
         setupRealtimeListener(category: category);
       }
     } catch (e) {
+      print('❌ Error loading products: $e');
       emit(PurchaseError("Gagal memuat produk: $e"));
     }
   }
 
   // ======================
-  // ADD PRODUCT
+  // ADD PRODUCT (Tanpa Stok)
   // ======================
   Future<void> addProduct({
     required String name,
     required int price,
-    required int stock,
     required String category,
     String? imageUrl,
   }) async {
     try {
-      final role = getUserRole();
-      if (role != 'admin') {
-        emit(PurchaseError('Hanya admin yang bisa menambah produk'));
-        return;
-      }
-
+      // Insert produk (tanpa stok)
       await supabase.from('produk').insert({
         'namaproduk': name,
         'harga': price,
-        'stok': stock,
         'kategori': category,
         'gambar_url': imageUrl,
         'created_at': DateTime.now().toIso8601String(),
       });
 
-      // ✅ Realtime akan auto-reload, tapi bisa manual juga
-      // await loadProducts(category: _currentCategory, silent: true);
+      print('✅ Product added');
+      // Realtime akan auto-reload
     } catch (e) {
+      print('❌ Error adding product: $e');
       emit(PurchaseError('Gagal menambah produk: $e'));
     }
   }
 
   // ======================
-  // UPDATE PRODUCT
+  // UPDATE PRODUCT (Tanpa Stok)
   // ======================
   Future<void> updateProduct({
     required String productId,
     required String name,
     required int price,
-    required int stock,
     required String category,
     String? imageUrl,
     String? oldImageUrl,
   }) async {
     try {
-      final role = getUserRole();
-      if (role != 'admin') {
-        emit(PurchaseError('Hanya admin yang bisa mengupdate produk'));
-        return;
-      }
-
+      // Update produk
       final updateData = {
         'namaproduk': name,
         'harga': price,
-        'stok': stock,
         'kategori': category,
       };
 
       if (imageUrl != null) {
         updateData['gambar_url'] = imageUrl;
+
         if (oldImageUrl != null && oldImageUrl != imageUrl) {
           await deleteImageFromStorage(oldImageUrl);
         }
@@ -254,8 +269,10 @@ class PurchaseCubit extends Cubit<PurchaseState> {
           .update(updateData)
           .eq('produkid', productId);
 
-      // ✅ Realtime akan auto-reload
+      print('✅ Product updated');
+      // Realtime akan auto-reload
     } catch (e) {
+      print('❌ Error updating product: $e');
       emit(PurchaseError('Gagal mengupdate produk: $e'));
     }
   }
@@ -263,22 +280,31 @@ class PurchaseCubit extends Cubit<PurchaseState> {
   // ======================
   // DELETE PRODUCT
   // ======================
-  Future<void> deleteProduct(String productId, String? imageUrl) async {
+  Future<void> deleteProduct(
+    String productId,
+    String? imageUrl,
+    String productName,
+  ) async {
     try {
-      final role = getUserRole();
-      if (role != 'admin') {
-        emit(PurchaseError('Hanya admin yang bisa menghapus produk'));
-        return;
-      }
+      // Delete stok first (foreign key constraint)
+      await supabase.from('stok').delete().eq('produktid', productId);
 
+      // Delete image if exists
       if (imageUrl != null) {
         await deleteImageFromStorage(imageUrl);
       }
 
+      // Delete product
       await supabase.from('produk').delete().eq('produkid', productId);
 
-      // ✅ Realtime akan auto-reload
+      print('✅ Product and stock deleted');
+
+      // ✅ Emit state sukses delete dengan nama produk
+      emit(PurchaseDeleted(productName));
+
+      // Realtime akan auto-reload
     } catch (e) {
+      print('❌ Error deleting product: $e');
       emit(PurchaseError('Gagal menghapus produk: $e'));
     }
   }
@@ -292,33 +318,51 @@ class PurchaseCubit extends Cubit<PurchaseState> {
       _realtimeChannel?.unsubscribe();
 
       emit(PurchaseLoading());
+
       final role = getUserRole();
 
       var q = supabase
           .from('produk')
-          .select("""
+          .select('''
         produkid,
         namaproduk,
         harga,
-        stok,
         kategori,
         gambar_url,
-        created_at
-      """)
+        created_at,
+        stok(jumlah)
+      ''')
           .ilike('namaproduk', '%$query%');
 
       if (category != null && category != 'All') {
         q = q.eq('kategori', category);
       }
 
-      final data = await q.order('namaproduk');
+      final response = await q.order('namaproduk');
 
-      final transformed = (data as List).map((item) {
+      // Parse response
+      List<dynamic> dataList;
+      if (response is List) {
+        dataList = response;
+      } else if (response is Map) {
+        dataList = [response];
+      } else {
+        dataList = [];
+      }
+
+      final transformed = dataList.map((item) {
+        int stock = 0;
+        if (item['stok'] != null &&
+            item['stok'] is List &&
+            (item['stok'] as List).isNotEmpty) {
+          stock = item['stok'][0]['jumlah'] ?? 0;
+        }
+
         return {
           'id': item['produkid'],
           'name': item['namaproduk'],
           'price': item['harga'],
-          'stock': item['stok'],
+          'stock': stock,
           'category': item['kategori'],
           'image_url': item['gambar_url'],
           'created_at': item['created_at'],
@@ -327,6 +371,7 @@ class PurchaseCubit extends Cubit<PurchaseState> {
 
       emit(PurchaseLoaded(products: transformed, userRole: role));
     } catch (e) {
+      print('❌ Error searching products: $e');
       emit(PurchaseError('Gagal mencari produk: $e'));
     }
   }
